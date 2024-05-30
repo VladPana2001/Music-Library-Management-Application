@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Music_Library_Management_Application.Data;
 using Music_Library_Management_Application.Models;
 using System.Diagnostics;
@@ -9,10 +10,12 @@ namespace Music_Library_Management_Application.Controllers
     public class HomeController : Controller
     {
         private readonly MyDbContext _context;
+        private readonly IMemoryCache _cache;
 
-        public HomeController(MyDbContext context)
+        public HomeController(MyDbContext context, IMemoryCache cache)
         {
             _context = context;
+            _cache = cache;
         }
 
         [HttpGet]
@@ -66,13 +69,25 @@ namespace Music_Library_Management_Application.Controllers
 
         public async Task<IActionResult> Play(int id)
         {
-            var file = await _context.MusicFiles.FindAsync(id);
-            if (file == null)
+            byte[] fileData;
+
+            if (!_cache.TryGetValue(id, out fileData))
             {
-                return NotFound();
+                var file = await _context.MusicFiles.FindAsync(id);
+                if (file == null)
+                {
+                    return NotFound();
+                }
+
+                fileData = file.Data;
+
+                var cacheEntryOptions = new MemoryCacheEntryOptions()
+                    .SetSlidingExpiration(TimeSpan.FromMinutes(30)); // Set cache to expire after 30 minutes of inactivity
+
+                _cache.Set(id, fileData, cacheEntryOptions);
             }
 
-            var fileStream = new MemoryStream(file.Data);
+            var fileStream = new MemoryStream(fileData);
             var response = File(fileStream, "audio/mpeg", enableRangeProcessing: true);
             return response;
         }
