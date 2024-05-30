@@ -1,7 +1,16 @@
+using Microsoft.EntityFrameworkCore;
+using Music_Library_Management_Application.Data;
+
 var builder = WebApplication.CreateBuilder(args);
+
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+// Register MyDbContext with the dependency injection container
+builder.Services.AddDbContext<MyDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 
 var app = builder.Build();
 
