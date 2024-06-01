@@ -1,0 +1,43 @@
+﻿@model List<Music_Library_Management_Application.Models.SongViewModel>
+
+@{
+    ViewData["Title"] = "Enter Song Details";
+}
+
+<h2>Enter Song Details</h2>
+
+<form asp-action="EnterSongDetails" method="post">
+    @for (int i = 0; i < Model.Count; i++)
+    {
+        <div class="song-entry">
+            <h4>@Model[i].FileName</h4>
+            <div class="form-group">
+                <label asp-for="@Model[i].SongTitle">Song Title</label>
+                <input asp-for="@Model[i].SongTitle" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label asp-for="@Model[i].Description">Description</label>
+                <input asp-for="@Model[i].Description" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label asp-for="@Model[i].SongArtist">Artist</label>
+                <input asp-for="@Model[i].SongArtist" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label asp-for="@Model[i].SongAlbum">Album</label>
+                <input asp-for="@Model[i].SongAlbum" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label asp-for="@Model[i].SongLenght">Length</label>
+                <input asp-for="@Model[i].SongLenght" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label asp-for="@Model[i].SongBPM">BPM</label>
+                <input asp-for="@Model[i].SongBPM" class="form-control" />
+            </div>
+            <input type="hidden" asp-for="@Model[i].FileName" />
+            <hr />
+        </div>
+    }
+    <button type="submit" class="btn btn-primary">Save</button>
+</form>
