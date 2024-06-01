@@ -1,0 +1,42 @@
+﻿@model IEnumerable<Music_Library_Management_Application.Models.DbModels.Song>
+
+@{
+    ViewData["Title"] = "Songs List";
+}
+
+<h2>Songs List</h2>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Song Title</th>
+            <th>Description</th>
+            <th>Artist</th>
+            <th>Album</th>
+            <th>Length</th>
+            <th>BPM</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var song in Model)
+        {
+            <tr>
+                <td>@song.SongTitle</td>
+                <td>@song.Description</td>
+                <td>@song.SongArtist</td>
+                <td>@song.SongAlbum</td>
+                <td>@song.SongLenght</td>
+                <td>@song.SongBPM</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@song.SongId" class="btn btn-warning">Edit</a>
+                    <a asp-action="Details" asp-route-id="@song.SongId" class="btn btn-info">Details</a>
+                    <a asp-action="Download" asp-route-id="@song.SongId" class="btn btn-success">Download</a>
+                    <a asp-action="Delete" asp-route-id="@song.SongId" class="btn btn-danger">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a asp-action="UploadSongs" class="btn btn-primary">Upload New Songs</a>

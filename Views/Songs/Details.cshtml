@@ -1,0 +1,54 @@
+﻿@model Music_Library_Management_Application.Models.DbModels.Song
+
+@{
+    ViewData["Title"] = "Song Details";
+}
+
+<h2>Song Details</h2>
+
+<div>
+    <h4>Song</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            Song Title
+        </dt>
+        <dd class="col-sm-10">
+            @Model.SongTitle
+        </dd>
+        <dt class="col-sm-2">
+            Description
+        </dt>
+        <dd class="col-sm-10">
+            @Model.Description
+        </dd>
+        <dt class="col-sm-2">
+            Artist
+        </dt>
+        <dd class="col-sm-10">
+            @Model.SongArtist
+        </dd>
+        <dt class="col-sm-2">
+            Album
+        </dt>
+        <dd class="col-sm-10">
+            @Model.SongAlbum
+        </dd>
+        <dt class="col-sm-2">
+            Length
+        </dt>
+        <dd class="col-sm-10">
+            @Model.SongLenght
+        </dd>
+        <dt class="col-sm-2">
+            BPM
+        </dt>
+        <dd class="col-sm-10">
+            @Model.SongBPM
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.SongId" class="btn btn-warning">Edit</a>
+    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+</div>

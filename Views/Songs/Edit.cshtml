@@ -1,0 +1,57 @@
+﻿@model Music_Library_Management_Application.Models.DbModels.Song
+
+@{
+    ViewData["Title"] = "Edit Song";
+}
+
+<h2>Edit Song</h2>
+
+<h4>Song</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div class="form-group">
+                <label asp-for="SongTitle" class="control-label"></label>
+                <input asp-for="SongTitle" class="form-control" />
+                <span asp-validation-for="SongTitle" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Description" class="control-label"></label>
+                <input asp-for="Description" class="form-control" />
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="SongArtist" class="control-label"></label>
+                <input asp-for="SongArtist" class="form-control" />
+                <span asp-validation-for="SongArtist" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="SongAlbum" class="control-label"></label>
+                <input asp-for="SongAlbum" class="form-control" />
+                <span asp-validation-for="SongAlbum" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="SongLenght" class="control-label"></label>
+                <input asp-for="SongLenght" class="form-control" />
+                <span asp-validation-for="SongLenght" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="SongBPM" class="control-label"></label>
+                <input asp-for="SongBPM" class="form-control" />
+                <span asp-validation-for="SongBPM" class="text-danger"></span>
+            </div>
+            <input type="hidden" asp-for="SongId" />
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+                <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
