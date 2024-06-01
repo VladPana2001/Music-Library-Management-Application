@@ -127,6 +127,115 @@ namespace Music_Library_Management_Application.Controllers
 
             return File(song.SongFile, "application/octet-stream", song.SongTitle + ".mp3");
         }
+        [HttpGet]
+        public IActionResult Details(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var song = _repoWrapper.Songs.GetById(id.Value);
+            if (song == null)
+            {
+                return NotFound();
+            }
+
+            return View(song);
+        }
+
+        // GET: Songs/Edit/5
+        [HttpGet]
+        public IActionResult Edit(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var song =_repoWrapper.Songs.GetById(id.Value);
+            if (song == null)
+            {
+                return NotFound();
+            }
+            return View(song);
+        }
+
+        // POST: Songs/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Edit(int id, [Bind("SongId,SongTitle,Description,SongArtist,SongAlbum,SongLenght,SongBPM")] Song songModel)
+        {
+            if (id != songModel.SongId)
+            {
+                return NotFound();
+            }
+
+            var song = _repoWrapper.Songs.GetById(id);
+
+            if (song == null)
+            {
+                return NotFound();
+            }
+
+            // Update the values
+            song.SongTitle = songModel.SongTitle;
+            song.Description = songModel.Description;
+            song.SongArtist = songModel.SongArtist;
+            song.SongAlbum = songModel.SongAlbum;
+            song.SongLenght = songModel.SongLenght;
+            song.SongBPM = songModel.SongBPM;
+
+            try
+            {
+                _repoWrapper.Songs.Update(song);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!SongExists(songModel.SongId))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        // GET: Songs/Delete/5
+        public IActionResult Delete(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var song = _repoWrapper.Songs.GetById(id.Value);
+            if (song == null)
+            {
+                return NotFound();
+            }
+
+            return View(song);
+        }
+
+        // POST: Songs/Delete/5
+        [HttpPost, ActionName("DeleteConfirmed")]
+        [ValidateAntiForgeryToken]
+        public IActionResult DeleteConfirmed(int id)
+        {
+            var song = _repoWrapper.Songs.GetById(id);
+            _repoWrapper.Songs.Delete(song);
+            return RedirectToAction(nameof(Index));
+        }
+
+        private bool SongExists(int id)
+        {
+            return _repoWrapper.Songs.Find(e => e.SongId == id).Any();
+        }
 
     }
 }
