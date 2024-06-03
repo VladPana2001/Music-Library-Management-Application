@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Music_Library_Management_Application.Data;
 
@@ -11,9 +12,11 @@ using Music_Library_Management_Application.Data;
 namespace Music_Library_Management_Application.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    partial class MyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240603134955_identity-setup")]
+    partial class identitysetup
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -86,11 +89,6 @@ namespace Music_Library_Management_Application.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Discriminator")
-                        .IsRequired()
-                        .HasMaxLength(13)
-                        .HasColumnType("nvarchar(13)");
-
                     b.Property<string>("Email")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
@@ -142,10 +140,6 @@ namespace Music_Library_Management_Application.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
-
-                    b.HasDiscriminator<string>("Discriminator").HasValue("IdentityUser");
-
-                    b.UseTphMappingStrategy();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
@@ -247,13 +241,7 @@ namespace Music_Library_Management_Application.Migrations
                     b.Property<string>("PlaylistTitle")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
                     b.HasKey("PlaylistId");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("Playlists");
                 });
@@ -287,45 +275,24 @@ namespace Music_Library_Management_Application.Migrations
                     b.Property<string>("SongTitle")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
                     b.HasKey("SongId");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("Songs");
                 });
 
             modelBuilder.Entity("Music_Library_Management_Application.Models.DbModels.SongPlaylist", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<int>("SongId")
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("PlaylistId")
                         .HasColumnType("int");
 
-                    b.Property<int>("SongId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
+                    b.HasKey("SongId", "PlaylistId");
 
                     b.HasIndex("PlaylistId");
 
-                    b.HasIndex("SongId");
-
                     b.ToTable("SongPlaylists");
-                });
-
-            modelBuilder.Entity("Music_Library_Management_Application.Models.DbModels.User", b =>
-                {
-                    b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUser");
-
-                    b.HasDiscriminator().HasValue("User");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -379,40 +346,18 @@ namespace Music_Library_Management_Application.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Music_Library_Management_Application.Models.DbModels.Playlist", b =>
-                {
-                    b.HasOne("Music_Library_Management_Application.Models.DbModels.User", "User")
-                        .WithMany("Playlists")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("Music_Library_Management_Application.Models.DbModels.Song", b =>
-                {
-                    b.HasOne("Music_Library_Management_Application.Models.DbModels.User", "User")
-                        .WithMany("Songs")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("Music_Library_Management_Application.Models.DbModels.SongPlaylist", b =>
                 {
                     b.HasOne("Music_Library_Management_Application.Models.DbModels.Playlist", "Playlist")
                         .WithMany("SongPlaylists")
                         .HasForeignKey("PlaylistId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Music_Library_Management_Application.Models.DbModels.Song", "Song")
                         .WithMany("SongPlaylists")
                         .HasForeignKey("SongId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Playlist");
@@ -428,13 +373,6 @@ namespace Music_Library_Management_Application.Migrations
             modelBuilder.Entity("Music_Library_Management_Application.Models.DbModels.Song", b =>
                 {
                     b.Navigation("SongPlaylists");
-                });
-
-            modelBuilder.Entity("Music_Library_Management_Application.Models.DbModels.User", b =>
-                {
-                    b.Navigation("Playlists");
-
-                    b.Navigation("Songs");
                 });
 #pragma warning restore 612, 618
         }
