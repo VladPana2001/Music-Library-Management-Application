@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Music_Library_Management_Application.Data;
 
@@ -11,9 +12,11 @@ using Music_Library_Management_Application.Data;
 namespace Music_Library_Management_Application.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    partial class MyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240603153510_UpdateIdentity")]
+    partial class UpdateIdentity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -181,7 +184,7 @@ namespace Music_Library_Management_Application.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Playlists", (string)null);
+                    b.ToTable("Playlists");
                 });
 
             modelBuilder.Entity("Music_Library_Management_Application.Models.DbModels.Song", b =>
@@ -221,7 +224,7 @@ namespace Music_Library_Management_Application.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Songs", (string)null);
+                    b.ToTable("Songs");
                 });
 
             modelBuilder.Entity("Music_Library_Management_Application.Models.DbModels.SongPlaylist", b =>
@@ -244,7 +247,7 @@ namespace Music_Library_Management_Application.Migrations
 
                     b.HasIndex("SongId");
 
-                    b.ToTable("SongPlaylists", (string)null);
+                    b.ToTable("SongPlaylists");
                 });
 
             modelBuilder.Entity("Music_Library_Management_Application.Models.DbModels.User", b =>

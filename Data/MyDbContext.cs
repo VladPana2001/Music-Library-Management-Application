@@ -5,7 +5,7 @@ using Music_Library_Management_Application.Models.DbModels;
 
 namespace Music_Library_Management_Application.Data
 {
-    public class MyDbContext : IdentityDbContext<IdentityUser>
+    public class MyDbContext : IdentityDbContext<User>
     {
         public MyDbContext(DbContextOptions<MyDbContext> options) : base(options){}
 

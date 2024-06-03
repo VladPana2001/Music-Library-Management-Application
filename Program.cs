@@ -3,6 +3,7 @@ using Music_Library_Management_Application.Data;
 using Music_Library_Management_Application.Repositories.Interfaces;
 using Music_Library_Management_Application.Repositories;
 using Microsoft.AspNetCore.Identity;
+using Music_Library_Management_Application.Models.DbModels;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,11 +13,10 @@ builder.Services.AddControllersWithViews().AddSessionStateTempDataProvider();
 builder.Services.AddRazorPages();
 builder.Services.AddSession();
 
-// Register MyDbContext with the dependency injection container
-builder.Services.AddDbContext<MyDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddDefaultIdentity<User>(options => 
+options.SignIn.RequireConfirmedAccount = false)
+    .AddEntityFrameworkStores<MyDbContext>();
 
-builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = false).AddEntityFrameworkStores<MyDbContext>();
 builder.Services.Configure<IdentityOptions>(options =>
 {
     // Password settings.
@@ -37,6 +37,11 @@ builder.Services.Configure<IdentityOptions>(options =>
     "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
     options.User.RequireUniqueEmail = false;
 });
+
+// Register MyDbContext with the dependency injection container
+builder.Services.AddDbContext<MyDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 
 
 builder.Services.AddScoped<ISongRepository, SongRepository>();

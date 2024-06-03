@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
+using Music_Library_Management_Application.Models.DbModels;
 
 namespace Music_Library_Management_Application.Areas.Identity.Pages.Account.Manage
 {
