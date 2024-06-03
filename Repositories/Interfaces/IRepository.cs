@@ -10,5 +10,7 @@ namespace Music_Library_Management_Application.Repositories.Interfaces
         void Update(T entity);
         void Delete(T entity);
         IEnumerable<T> Find(Expression<Func<T, bool>> predicate);
+        public IEnumerable<T> GetAllByUserId(string userId);
+        public T GetByIdAndUserId(int id, string userId);
     }
 }

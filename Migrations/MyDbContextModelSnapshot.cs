@@ -161,11 +161,11 @@ namespace Music_Library_Management_Application.Migrations
 
             modelBuilder.Entity("Music_Library_Management_Application.Models.DbModels.Playlist", b =>
                 {
-                    b.Property<int>("PlaylistId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PlaylistId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("PlaylistDescription")
                         .HasColumnType("nvarchar(max)");
@@ -177,20 +177,20 @@ namespace Music_Library_Management_Application.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.HasKey("PlaylistId");
+                    b.HasKey("Id");
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Playlists", (string)null);
+                    b.ToTable("Playlists");
                 });
 
             modelBuilder.Entity("Music_Library_Management_Application.Models.DbModels.Song", b =>
                 {
-                    b.Property<int>("SongId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SongId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
@@ -217,20 +217,17 @@ namespace Music_Library_Management_Application.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.HasKey("SongId");
+                    b.HasKey("Id");
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Songs", (string)null);
+                    b.ToTable("Songs");
                 });
 
             modelBuilder.Entity("Music_Library_Management_Application.Models.DbModels.SongPlaylist", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("PlaylistId")
                         .HasColumnType("int");
@@ -240,11 +237,7 @@ namespace Music_Library_Management_Application.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("PlaylistId");
-
-                    b.HasIndex("SongId");
-
-                    b.ToTable("SongPlaylists", (string)null);
+                    b.ToTable("SongPlaylists");
                 });
 
             modelBuilder.Entity("Music_Library_Management_Application.Models.DbModels.User", b =>
@@ -389,13 +382,13 @@ namespace Music_Library_Management_Application.Migrations
                 {
                     b.HasOne("Music_Library_Management_Application.Models.DbModels.Playlist", "Playlist")
                         .WithMany("SongPlaylists")
-                        .HasForeignKey("PlaylistId")
+                        .HasForeignKey("Id")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("Music_Library_Management_Application.Models.DbModels.Song", "Song")
                         .WithMany("SongPlaylists")
-                        .HasForeignKey("SongId")
+                        .HasForeignKey("Id")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 

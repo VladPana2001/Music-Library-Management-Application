@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Music_Library_Management_Application.Models;
 using Music_Library_Management_Application.Models.DbModels;
@@ -11,15 +12,19 @@ namespace Music_Library_Management_Application.Controllers
     public class SongsController : Controller
     {
         private readonly IRepositoryWrapper _repoWrapper;
+        private readonly UserManager<User> _userManager;
 
-        public SongsController(IRepositoryWrapper repoWrapper)
+        public SongsController(IRepositoryWrapper repoWrapper, UserManager<User> userManager)
         {
             _repoWrapper = repoWrapper;
+            _userManager = userManager;
         }
+        private async Task<User> GetCurrentUserAsync() => await _userManager.GetUserAsync(HttpContext.User);
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            var songs = _repoWrapper.Songs.GetAll();
+            var user = await GetCurrentUserAsync();
+            var songs = _repoWrapper.Songs.GetAllByUserId(user.Id);
             return View(songs);
         }
 
@@ -93,6 +98,8 @@ namespace Music_Library_Management_Application.Controllers
                 ? JsonConvert.DeserializeObject<List<SongFileViewModel>>(uploadedFilesJson)
                 : new List<SongFileViewModel>();
 
+            var user = await GetCurrentUserAsync();
+
             foreach (var songViewModel in songs)
             {
                 var file = uploadedFiles.Find(f => f.FileName == songViewModel.FileName);
@@ -106,7 +113,8 @@ namespace Music_Library_Management_Application.Controllers
                         SongAlbum = songViewModel.SongAlbum,
                         SongLenght = songViewModel.SongLenght,
                         SongBPM = songViewModel.SongBPM,
-                        SongFile = file.FileContent
+                        SongFile = file.FileContent,
+                        UserId = user.Id
                     };
 
                     _repoWrapper.Songs.Add(song);
@@ -119,7 +127,8 @@ namespace Music_Library_Management_Application.Controllers
 
         public async Task<IActionResult> Download(int id)
         {
-            var song =  _repoWrapper.Songs.GetById(id);
+            var user = await GetCurrentUserAsync();
+            var song = _repoWrapper.Songs.GetByIdAndUserId(id, user.Id);
             if (song == null)
             {
                 return NotFound();
@@ -128,14 +137,15 @@ namespace Music_Library_Management_Application.Controllers
             return File(song.SongFile, "application/octet-stream", song.SongTitle + ".mp3");
         }
         [HttpGet]
-        public IActionResult Details(int? id)
+        public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var song = _repoWrapper.Songs.GetById(id.Value);
+            var user = await GetCurrentUserAsync();
+            var song = _repoWrapper.Songs.GetByIdAndUserId(id.Value, user.Id);
             if (song == null)
             {
                 return NotFound();
@@ -146,14 +156,15 @@ namespace Music_Library_Management_Application.Controllers
 
         // GET: Songs/Edit/5
         [HttpGet]
-        public IActionResult Edit(int? id)
+        public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var song =_repoWrapper.Songs.GetById(id.Value);
+            var user = await GetCurrentUserAsync();
+            var song = _repoWrapper.Songs.GetByIdAndUserId(id.Value, user.Id);
             if (song == null)
             {
                 return NotFound();
@@ -164,14 +175,15 @@ namespace Music_Library_Management_Application.Controllers
         // POST: Songs/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(int id, [Bind("SongId,SongTitle,Description,SongArtist,SongAlbum,SongLenght,SongBPM")] Song songModel)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,SongTitle,Description,SongArtist,SongAlbum,SongLenght,SongBPM")] Song songModel)
         {
-            if (id != songModel.SongId)
+            if (id != songModel.Id)
             {
                 return NotFound();
             }
 
-            var song = _repoWrapper.Songs.GetById(id);
+            var user = await GetCurrentUserAsync();
+            var song = _repoWrapper.Songs.GetByIdAndUserId(id, user.Id);
 
             if (song == null)
             {
@@ -192,7 +204,7 @@ namespace Music_Library_Management_Application.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!SongExists(songModel.SongId))
+                if (!SongExists(songModel.Id, user.Id))
                 {
                     return NotFound();
                 }
@@ -206,14 +218,15 @@ namespace Music_Library_Management_Application.Controllers
         }
 
         // GET: Songs/Delete/5
-        public IActionResult Delete(int? id)
+        public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var song = _repoWrapper.Songs.GetById(id.Value);
+            var user = await GetCurrentUserAsync();
+            var song = _repoWrapper.Songs.GetByIdAndUserId(id.Value, user.Id);
             if (song == null)
             {
                 return NotFound();
@@ -225,16 +238,17 @@ namespace Music_Library_Management_Application.Controllers
         // POST: Songs/Delete/5
         [HttpPost, ActionName("DeleteConfirmed")]
         [ValidateAntiForgeryToken]
-        public IActionResult DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var song = _repoWrapper.Songs.GetById(id);
+            var user = await GetCurrentUserAsync();
+            var song = _repoWrapper.Songs.GetByIdAndUserId(id, user.Id);
             _repoWrapper.Songs.Delete(song);
             return RedirectToAction(nameof(Index));
         }
 
-        private bool SongExists(int id)
+        private bool SongExists(int id, string userId)
         {
-            return _repoWrapper.Songs.Find(e => e.SongId == id).Any();
+            return _repoWrapper.Songs.Find(e => e.Id == id && e.UserId == userId).Any();
         }
 
     }
