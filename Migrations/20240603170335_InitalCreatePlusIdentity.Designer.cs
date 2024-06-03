@@ -12,8 +12,8 @@ using Music_Library_Management_Application.Data;
 namespace Music_Library_Management_Application.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    [Migration("20240603134955_identity-setup")]
-    partial class identitysetup
+    [Migration("20240603170335_InitalCreatePlusIdentity")]
+    partial class InitalCreatePlusIdentity
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -75,71 +75,6 @@ namespace Music_Library_Management_Application.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("AspNetRoleClaims", (string)null);
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUser", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("AccessFailedCount")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Email")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<bool>("EmailConfirmed")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("LockoutEnabled")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTimeOffset?>("LockoutEnd")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("NormalizedEmail")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<string>("NormalizedUserName")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<string>("PasswordHash")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PhoneNumber")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("PhoneNumberConfirmed")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("SecurityStamp")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("TwoFactorEnabled")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("UserName")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("NormalizedEmail")
-                        .HasDatabaseName("EmailIndex");
-
-                    b.HasIndex("NormalizedUserName")
-                        .IsUnique()
-                        .HasDatabaseName("UserNameIndex")
-                        .HasFilter("[NormalizedUserName] IS NOT NULL");
-
-                    b.ToTable("AspNetUsers", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
@@ -229,11 +164,11 @@ namespace Music_Library_Management_Application.Migrations
 
             modelBuilder.Entity("Music_Library_Management_Application.Models.DbModels.Playlist", b =>
                 {
-                    b.Property<int>("PlaylistId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PlaylistId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("PlaylistDescription")
                         .HasColumnType("nvarchar(max)");
@@ -241,18 +176,24 @@ namespace Music_Library_Management_Application.Migrations
                     b.Property<string>("PlaylistTitle")
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("PlaylistId");
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Playlists");
                 });
 
             modelBuilder.Entity("Music_Library_Management_Application.Models.DbModels.Song", b =>
                 {
-                    b.Property<int>("SongId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SongId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
@@ -275,24 +216,96 @@ namespace Music_Library_Management_Application.Migrations
                     b.Property<string>("SongTitle")
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("SongId");
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Songs");
                 });
 
             modelBuilder.Entity("Music_Library_Management_Application.Models.DbModels.SongPlaylist", b =>
                 {
-                    b.Property<int>("SongId")
+                    b.Property<int>("Id")
                         .HasColumnType("int");
 
                     b.Property<int>("PlaylistId")
                         .HasColumnType("int");
 
-                    b.HasKey("SongId", "PlaylistId");
+                    b.Property<int>("SongId")
+                        .HasColumnType("int");
 
-                    b.HasIndex("PlaylistId");
+                    b.HasKey("Id");
 
                     b.ToTable("SongPlaylists");
+                });
+
+            modelBuilder.Entity("Music_Library_Management_Application.Models.DbModels.User", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("AccessFailedCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<bool>("EmailConfirmed")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("LockoutEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTimeOffset?>("LockoutEnd")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("NormalizedEmail")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("NormalizedUserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("PasswordHash")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("PhoneNumberConfirmed")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("SecurityStamp")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("TwoFactorEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("UserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NormalizedEmail")
+                        .HasDatabaseName("EmailIndex");
+
+                    b.HasIndex("NormalizedUserName")
+                        .IsUnique()
+                        .HasDatabaseName("UserNameIndex")
+                        .HasFilter("[NormalizedUserName] IS NOT NULL");
+
+                    b.ToTable("AspNetUsers", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -306,7 +319,7 @@ namespace Music_Library_Management_Application.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                    b.HasOne("Music_Library_Management_Application.Models.DbModels.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -315,7 +328,7 @@ namespace Music_Library_Management_Application.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                    b.HasOne("Music_Library_Management_Application.Models.DbModels.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -330,7 +343,7 @@ namespace Music_Library_Management_Application.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                    b.HasOne("Music_Library_Management_Application.Models.DbModels.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -339,25 +352,47 @@ namespace Music_Library_Management_Application.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                    b.HasOne("Music_Library_Management_Application.Models.DbModels.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Music_Library_Management_Application.Models.DbModels.Playlist", b =>
+                {
+                    b.HasOne("Music_Library_Management_Application.Models.DbModels.User", "User")
+                        .WithMany("Playlists")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Music_Library_Management_Application.Models.DbModels.Song", b =>
+                {
+                    b.HasOne("Music_Library_Management_Application.Models.DbModels.User", "User")
+                        .WithMany("Songs")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Music_Library_Management_Application.Models.DbModels.SongPlaylist", b =>
                 {
                     b.HasOne("Music_Library_Management_Application.Models.DbModels.Playlist", "Playlist")
                         .WithMany("SongPlaylists")
-                        .HasForeignKey("PlaylistId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasForeignKey("Id")
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("Music_Library_Management_Application.Models.DbModels.Song", "Song")
                         .WithMany("SongPlaylists")
-                        .HasForeignKey("SongId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasForeignKey("Id")
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("Playlist");
@@ -373,6 +408,13 @@ namespace Music_Library_Management_Application.Migrations
             modelBuilder.Entity("Music_Library_Management_Application.Models.DbModels.Song", b =>
                 {
                     b.Navigation("SongPlaylists");
+                });
+
+            modelBuilder.Entity("Music_Library_Management_Application.Models.DbModels.User", b =>
+                {
+                    b.Navigation("Playlists");
+
+                    b.Navigation("Songs");
                 });
 #pragma warning restore 612, 618
         }

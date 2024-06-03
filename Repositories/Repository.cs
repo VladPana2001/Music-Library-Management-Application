@@ -49,5 +49,15 @@ namespace Music_Library_Management_Application.Repositories
         {
             return _dbSet.Where(predicate);
         }
+
+        public IEnumerable<T> GetAllByUserId(string userId)
+        {
+            return _dbSet.Where(e => EF.Property<string>(e, "UserId") == userId).ToList();
+        }
+
+        public T GetByIdAndUserId(int id, string userId)
+        {
+            return _dbSet.SingleOrDefault(e => EF.Property<int>(e, "Id") == id && EF.Property<string>(e, "UserId") == userId);
+        }
     }
 }

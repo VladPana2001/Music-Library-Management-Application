@@ -2,7 +2,7 @@
 {
     public class Playlist
     {
-        public int PlaylistId { get; set; }
+        public int Id { get; set; }
         public string? PlaylistTitle { get; set; }
         public string? PlaylistDescription { get; set; }
         public string UserId { get; set; }

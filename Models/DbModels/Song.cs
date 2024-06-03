@@ -2,7 +2,7 @@
 {
     public class Song
     {
-        public int SongId { get; set; }
+        public int Id { get; set; }
         public string? SongTitle { get; set; }
         public string? Description { get; set; }
         public string? SongArtist { get; set; }
