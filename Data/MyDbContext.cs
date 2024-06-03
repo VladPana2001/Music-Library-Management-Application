@@ -1,9 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Music_Library_Management_Application.Models.DbModels;
 
 namespace Music_Library_Management_Application.Data
 {
-    public class MyDbContext : DbContext
+    public class MyDbContext : IdentityDbContext<IdentityUser>
     {
         public MyDbContext(DbContextOptions<MyDbContext> options) : base(options){}
 
@@ -13,6 +15,8 @@ namespace Music_Library_Management_Application.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
+
             modelBuilder.Entity<SongPlaylist>()
                 .HasKey(sp => new { sp.SongId, sp.PlaylistId });
 
