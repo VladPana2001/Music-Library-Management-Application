@@ -1,0 +1,77 @@
+﻿@model Music_Library_Management_Application.Models.PlaylistCreateViewModel
+
+@{
+    ViewData["Title"] = "Create Playlist";
+}
+
+<h1>Create Playlist</h1>
+
+<h4>Playlist Details</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div class="form-group">
+                <label asp-for="Playlist.PlaylistTitle" class="control-label"></label>
+                <input asp-for="Playlist.PlaylistTitle" class="form-control" />
+                <span asp-validation-for="Playlist.PlaylistTitle" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Playlist.PlaylistDescription" class="control-label"></label>
+                <input asp-for="Playlist.PlaylistDescription" class="form-control" />
+                <span asp-validation-for="Playlist.PlaylistDescription" class="text-danger"></span>
+            </div>
+
+            <h4>Songs</h4>
+            <div id="selected-songs">
+                <!-- Display selected songs here -->
+                @foreach (var songId in Model.SelectedSongIds)
+                {
+                    var song = Model.AllUserSongs.FirstOrDefault(s => s.Id == songId);
+                    if (song != null)
+                    {
+                        <div>
+                            <span>@song.SongTitle</span>
+                            <button type="button" class="btn btn-danger" onclick="removeSong(@song.Id)">Remove</button>
+                        </div>
+                    }
+                }
+            </div>
+
+            <h4>All Songs</h4>
+            <div id="all-songs">
+                @foreach (var song in Model.AllUserSongs)
+                {
+                    <div>
+                        <span>@song.SongTitle</span>
+                        <button type="button" class="btn btn-primary" onclick="addSong(@song.Id, '@song.SongTitle')">Add</button>
+                    </div>
+                }
+            </div>
+
+            <input type="hidden" asp-for="SelectedSongIds" id="SelectedSongIds" />
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    <script>
+        function addSong(songId, songTitle) {
+            var selectedSongsDiv = document.getElementById("selected-songs");
+            var songDiv = document.createElement("div");
+            songDiv.innerHTML = '<span>' + songTitle + '</span><button type="button" class="btn btn-danger" onclick="removeSong(this)">Remove</button><input type="hidden" name="SelectedSongIds" value="' + songId + '" />';
+            selectedSongsDiv.appendChild(songDiv);
+        }
+
+        function removeSong(button) {
+            var songDiv = button.parentElement;
+            songDiv.parentElement.removeChild(songDiv);
+        }
+    </script>
+}

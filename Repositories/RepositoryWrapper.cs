@@ -9,6 +9,7 @@ namespace Music_Library_Management_Application.Repositories
         private readonly MyDbContext _context;
         private ISongRepository _songs;
         private IPlaylistRepository _playlists;
+        private ISongPlaylistRepository _songPlaylists;
 
         public RepositoryWrapper(MyDbContext context)
         {
@@ -38,6 +39,19 @@ namespace Music_Library_Management_Application.Repositories
                 }
 
                 return _playlists;
+            }
+        }
+
+        public ISongPlaylistRepository SongPlaylists
+        {
+            get
+            {
+                if (_songPlaylists == null)
+                {
+                    _songPlaylists = new SongPlaylistRepository(_context);
+                }
+
+                return _songPlaylists;
             }
         }
     }

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Music_Library_Management_Application.Models;
@@ -9,6 +10,7 @@ using Newtonsoft.Json;
 
 namespace Music_Library_Management_Application.Controllers
 {
+    [Authorize]
     public class SongsController : Controller
     {
         private readonly IRepositoryWrapper _repoWrapper;
