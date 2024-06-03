@@ -11,6 +11,9 @@
         public short? SongBPM { get; set; }
         public byte[]? SongFile { get; set; }
 
+        public string UserId { get; set; }
+        public User User { get; set; }
+
         public ICollection<SongPlaylist> SongPlaylists { get; set; }
 
     }
