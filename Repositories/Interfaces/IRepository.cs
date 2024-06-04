@@ -12,5 +12,7 @@ namespace Music_Library_Management_Application.Repositories.Interfaces
         IEnumerable<T> Find(Expression<Func<T, bool>> predicate);
         public IEnumerable<T> GetAllByUserId(string userId);
         public T GetByIdAndUserId(int id, string userId);
+        int Count();
+        int Count(Expression<Func<T, bool>> predicate);
     }
 }

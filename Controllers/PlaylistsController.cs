@@ -46,26 +46,39 @@ namespace Music_Library_Management_Application.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(PlaylistCreateViewModel viewModel)
         {
-            if (ModelState.IsValid)
+
+            var user = await GetCurrentUserAsync();
+
+            // Create a new Playlist instance
+            var playlist = new Playlist
             {
-                var user = await GetCurrentUserAsync();
-                viewModel.Playlist.UserId = user.Id;
-                _repoWrapper.Playlists.Add(viewModel.Playlist);
+                PlaylistTitle = viewModel.Playlist.PlaylistTitle,
+                PlaylistDescription = viewModel.Playlist.PlaylistDescription,
+                UserId = user.Id,
+                User = user,
+                SongPlaylists = new List<SongPlaylist>()
+            };
 
-                // Add selected songs to the playlist
-                foreach (var songId in viewModel.SelectedSongIds)
-                {
-                    var songPlaylist = new SongPlaylist
-                    {
-                        SongId = songId,
-                        PlaylistId = viewModel.Playlist.Id
-                    };
-                    _repoWrapper.SongPlaylists.Add(songPlaylist);
-                }
+            _repoWrapper.Playlists.Add(playlist);
 
-                return RedirectToAction(nameof(Index));
+            // Create SongPlaylists to link the songs to the playlist
+            foreach (var songId in viewModel.SelectedSongIds)
+            {
+                var songPlaylist = new SongPlaylist
+                {   
+                    SongId = songId,
+                    Song = _repoWrapper.Songs.GetById(songId),   
+                    PlaylistId = playlist.Id,
+                    Playlist = playlist
+                };
+                _repoWrapper.SongPlaylists.Add(songPlaylist);
+                playlist.SongPlaylists.Add(songPlaylist);
             }
-            return View(viewModel);
+
+            _repoWrapper.Playlists.Update(playlist);
+           
+
+            return RedirectToAction(nameof(Index));
         }
 
 

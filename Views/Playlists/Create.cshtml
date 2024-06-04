@@ -32,7 +32,8 @@
                     {
                         <div>
                             <span>@song.SongTitle</span>
-                            <button type="button" class="btn btn-danger" onclick="removeSong(@song.Id)">Remove</button>
+                            <button type="button" class="btn btn-danger" onclick="removeSong(this)">Remove</button>
+                            <input type="hidden" name="SelectedSongIds" value="@song.Id" />
                         </div>
                     }
                 }
@@ -42,14 +43,19 @@
             <div id="all-songs">
                 @foreach (var song in Model.AllUserSongs)
                 {
-                    <div>
-                        <span>@song.SongTitle</span>
-                        <button type="button" class="btn btn-primary" onclick="addSong(@song.Id, '@song.SongTitle')">Add</button>
+                    <div class="song-item">
+                        <span><strong>Title:</strong> @song.SongTitle</span><br />
+                        <span><strong>Description:</strong> @song.Description</span><br />
+                        <span><strong>Artist:</strong> @song.SongArtist</span><br />
+                        <span><strong>Album:</strong> @song.SongAlbum</span><br />
+                        <span><strong>Length:</strong> @song.SongLenght</span><br />
+                        <span><strong>BPM:</strong> @song.SongBPM</span><br />
+                        <button type="button" class="btn btn-primary" onclick="addSong(@song.Id, '@song.SongTitle', '@song.Description', '@song.SongArtist', '@song.SongAlbum', '@song.SongLenght', '@song.SongBPM')">Add</button>
                     </div>
+                    <hr />
                 }
             </div>
 
-            <input type="hidden" asp-for="SelectedSongIds" id="SelectedSongIds" />
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
             </div>
@@ -62,10 +68,19 @@
 
 @section Scripts {
     <script>
-        function addSong(songId, songTitle) {
+        function addSong(songId, songTitle, songDescription, songArtist, songAlbum, songLength, songBPM) {
             var selectedSongsDiv = document.getElementById("selected-songs");
             var songDiv = document.createElement("div");
-            songDiv.innerHTML = '<span>' + songTitle + '</span><button type="button" class="btn btn-danger" onclick="removeSong(this)">Remove</button><input type="hidden" name="SelectedSongIds" value="' + songId + '" />';
+            songDiv.innerHTML = `
+                        <span><strong>Title:</strong> ${songTitle}</span><br />
+                        <span><strong>Description:</strong> ${songDescription}</span><br />
+                        <span><strong>Artist:</strong> ${songArtist}</span><br />
+                        <span><strong>Album:</strong> ${songAlbum}</span><br />
+                        <span><strong>Length:</strong> ${songLength}</span><br />
+                        <span><strong>BPM:</strong> ${songBPM}</span><br />
+                        <button type="button" class="btn btn-danger" onclick="removeSong(this)">Remove</button>
+                        <input type="hidden" name="SelectedSongIds" value="${songId}" />
+                    `;
             selectedSongsDiv.appendChild(songDiv);
         }
 

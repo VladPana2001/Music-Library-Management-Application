@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Music_Library_Management_Application.Migrations
 {
     /// <inheritdoc />
-    public partial class InitalCreatePlusIdentity : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -205,7 +205,8 @@ namespace Music_Library_Management_Application.Migrations
                 name: "SongPlaylists",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false),
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     SongId = table.Column<int>(type: "int", nullable: false),
                     PlaylistId = table.Column<int>(type: "int", nullable: false)
                 },
@@ -213,13 +214,13 @@ namespace Music_Library_Management_Application.Migrations
                 {
                     table.PrimaryKey("PK_SongPlaylists", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_SongPlaylists_Playlists_Id",
-                        column: x => x.Id,
+                        name: "FK_SongPlaylists_Playlists_PlaylistId",
+                        column: x => x.PlaylistId,
                         principalTable: "Playlists",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_SongPlaylists_Songs_Id",
-                        column: x => x.Id,
+                        name: "FK_SongPlaylists_Songs_SongId",
+                        column: x => x.SongId,
                         principalTable: "Songs",
                         principalColumn: "Id");
                 });
@@ -267,6 +268,16 @@ namespace Music_Library_Management_Application.Migrations
                 name: "IX_Playlists_UserId",
                 table: "Playlists",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SongPlaylists_PlaylistId",
+                table: "SongPlaylists",
+                column: "PlaylistId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SongPlaylists_SongId",
+                table: "SongPlaylists",
+                column: "SongId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Songs_UserId",

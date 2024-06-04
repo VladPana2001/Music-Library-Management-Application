@@ -39,13 +39,13 @@ namespace Music_Library_Management_Application.Data
             builder.Entity<SongPlaylist>()
                 .HasOne(sp => sp.Song)
                 .WithMany(s => s.SongPlaylists)
-                .HasForeignKey(sp => sp.Id)
+                .HasForeignKey(sp => sp.SongId)
                 .OnDelete(DeleteBehavior.NoAction); // Enable cascade delete for song
 
             builder.Entity<SongPlaylist>()
                 .HasOne(sp => sp.Playlist)
                 .WithMany(p => p.SongPlaylists)
-                .HasForeignKey(sp => sp.Id)
+                .HasForeignKey(sp => sp.PlaylistId)
                 .OnDelete(DeleteBehavior.NoAction); // Enable cascade delete for playlist
         }
     }
