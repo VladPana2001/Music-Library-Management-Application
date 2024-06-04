@@ -4,5 +4,6 @@
     {
         ISongRepository Songs { get; }
         IPlaylistRepository Playlists { get; }
+        ISongPlaylistRepository SongPlaylists{ get; }
     }
 }

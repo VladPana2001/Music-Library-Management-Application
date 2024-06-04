@@ -59,5 +59,15 @@ namespace Music_Library_Management_Application.Repositories
         {
             return _dbSet.SingleOrDefault(e => EF.Property<int>(e, "Id") == id && EF.Property<string>(e, "UserId") == userId);
         }
+
+        public int Count()
+        {
+            return _dbSet.Count();
+        }
+
+        public int Count(Expression<Func<T, bool>> predicate)
+        {
+            return _dbSet.Count(predicate);
+        }
     }
 }

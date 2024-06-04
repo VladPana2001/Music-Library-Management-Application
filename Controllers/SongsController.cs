@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Music_Library_Management_Application.Models;
@@ -9,6 +10,7 @@ using Newtonsoft.Json;
 
 namespace Music_Library_Management_Application.Controllers
 {
+    [Authorize]
     public class SongsController : Controller
     {
         private readonly IRepositoryWrapper _repoWrapper;
@@ -242,7 +244,21 @@ namespace Music_Library_Management_Application.Controllers
         {
             var user = await GetCurrentUserAsync();
             var song = _repoWrapper.Songs.GetByIdAndUserId(id, user.Id);
+            if (song == null)
+            {
+                return NotFound();
+            }
+
+            // Find and delete all SongPlaylist links
+            var songPlaylists = _repoWrapper.SongPlaylists.Find(sp => sp.SongId == id).ToList();
+            foreach (var songPlaylist in songPlaylists)
+            {
+                _repoWrapper.SongPlaylists.Delete(songPlaylist);
+            }
+
+            // Delete the song
             _repoWrapper.Songs.Delete(song);
+
             return RedirectToAction(nameof(Index));
         }
 
