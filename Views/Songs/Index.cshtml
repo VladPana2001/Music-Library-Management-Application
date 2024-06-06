@@ -32,6 +32,7 @@
                     <a asp-action="Edit" asp-route-id="@song.Id" class="btn btn-warning">Edit</a>
                     <a asp-action="Details" asp-route-id="@song.Id" class="btn btn-info">Details</a>
                     <a asp-action="Download" asp-route-id="@song.Id" class="btn btn-success">Download</a>
+                    <button class="btn btn-primary play-button" data-song-url="@Url.Action("Play", new { id = song.Id })" data-song-title="@song.SongTitle">Play</button>
                     <a asp-action="Delete" asp-route-id="@song.Id" class="btn btn-danger">Delete</a>
                 </td>
             </tr>
@@ -40,3 +41,213 @@
 </table>
 
 <a asp-action="UploadSongs" class="btn btn-primary">Upload New Songs</a>
+
+<!-- Music Player Footer -->
+<div id="music-player-footer" class="fixed-bottom bg-light p-3" style="display: none;">
+    <div class="d-flex align-items-center justify-content-center">
+        <span id="current-song-title" class="mx-2"></span>
+        <button id="prev-button" class="btn btn-secondary">Previous</button>
+        <button id="play-button" class="btn btn-primary">Play</button>
+        <button id="pause-button" class="btn btn-primary" style="display: none;">Pause</button>
+        <button id="next-button" class="btn btn-secondary">Next</button>
+        <button id="replay-button" class="btn btn-secondary">Repeat Off</button>
+        <span id="current-time" class="mx-2">0:00</span>
+        <input type="range" id="seek-slider" value="0" max="100" class="mx-2">
+        <span id="total-time" class="mx-2">0:00</span>
+        <button id="mute-button" class="btn btn-secondary">Mute</button>
+        <input type="range" id="volume-slider" value="50" max="100" class="mx-2">
+        <span id="volume-level" class="mx-2">50%</span>
+    </div>
+</div>
+
+<!-- Audio Element -->
+<audio id="audio-player" style="display: none;"></audio>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            const audioPlayer = document.getElementById('audio-player');
+            const playButton = document.getElementById('play-button');
+            const pauseButton = document.getElementById('pause-button');
+            const seekSlider = document.getElementById('seek-slider');
+            const volumeSlider = document.getElementById('volume-slider');
+            const prevButton = document.getElementById('prev-button');
+            const nextButton = document.getElementById('next-button');
+            const replayButton = document.getElementById('replay-button');
+            const muteButton = document.getElementById('mute-button');
+            const currentTimeSpan = document.getElementById('current-time');
+            const totalTimeSpan = document.getElementById('total-time');
+            const volumeLevelSpan = document.getElementById('volume-level');
+            const currentSongTitleSpan = document.getElementById('current-song-title');
+            const musicPlayerFooter = document.getElementById('music-player-footer');
+            let currentSongIndex = -1;
+            let songs = [];
+            let songTitles = [];
+            let isSeeking = false;
+            let wasPlayingBeforeSeek = false;
+            let currentPlayButton = null;
+            let isMuted = false;
+            let isRepeating = false;
+
+            // Set initial volume to 50%
+            audioPlayer.volume = 0.5;
+
+            document.querySelectorAll('.play-button').forEach((button, index) => {
+                button.addEventListener('click', () => {
+                    songs = Array.from(document.querySelectorAll('.play-button')).map(b => b.getAttribute('data-song-url'));
+                    songTitles = Array.from(document.querySelectorAll('.play-button')).map(b => b.getAttribute('data-song-title'));
+                    currentSongIndex = index;
+                    playSong(button);
+                });
+            });
+
+            playButton.addEventListener('click', () => {
+                audioPlayer.play();
+                playButton.style.display = 'none';
+                pauseButton.style.display = 'inline-block';
+                updatePlayButton('Playing');
+            });
+
+            pauseButton.addEventListener('click', () => {
+                audioPlayer.pause();
+                playButton.style.display = 'inline-block';
+                pauseButton.style.display = 'none';
+                updatePlayButton('Play');
+            });
+
+            prevButton.addEventListener('click', () => {
+                if (currentSongIndex > 0) {
+                    currentSongIndex--;
+                } else {
+                    currentSongIndex = songs.length - 1; // Loop to the last song
+                }
+                playSong();
+            });
+
+            nextButton.addEventListener('click', () => {
+                if (currentSongIndex < songs.length - 1) {
+                    currentSongIndex++;
+                } else {
+                    currentSongIndex = 0; // Loop to the first song
+                }
+                playSong();
+            });
+
+            replayButton.addEventListener('click', () => {
+                isRepeating = !isRepeating;
+                replayButton.textContent = isRepeating ? 'Repeat On' : 'Repeat Off';
+            });
+
+            muteButton.addEventListener('click', () => {
+                isMuted = !isMuted;
+                audioPlayer.muted = isMuted;
+                muteButton.textContent = isMuted ? 'Unmute' : 'Mute';
+                volumeSlider.value = isMuted ? 0 : audioPlayer.volume * 100;
+                volumeLevelSpan.textContent = isMuted ? '0%' : `${volumeSlider.value}%`;
+            });
+
+            audioPlayer.addEventListener('timeupdate', () => {
+                if (!isSeeking) {
+                    seekSlider.value = (audioPlayer.currentTime / audioPlayer.duration) * 100;
+                    currentTimeSpan.textContent = formatTime(audioPlayer.currentTime);
+                }
+            });
+
+            audioPlayer.addEventListener('loadedmetadata', () => {
+                totalTimeSpan.textContent = formatTime(audioPlayer.duration);
+            });
+
+            audioPlayer.addEventListener('ended', () => {
+                if (isRepeating) {
+                    audioPlayer.currentTime = 0;
+                    audioPlayer.play();
+                } else {
+                    nextButton.click(); // Play the next song
+                }
+            });
+
+            seekSlider.addEventListener('mousedown', (e) => {
+                if (e.button === 0) { // Only act on left click
+                    isSeeking = true;
+                    wasPlayingBeforeSeek = !audioPlayer.paused;
+                    if (wasPlayingBeforeSeek) {
+                        audioPlayer.pause();
+                    }
+                    console.log('Seeking started');
+                }
+            });
+
+            seekSlider.addEventListener('mouseup', (e) => {
+                if (e.button === 0) { // Only act on left click
+                    isSeeking = false;
+                    const seekTo = audioPlayer.duration * (e.target.value / 100);
+                    audioPlayer.currentTime = seekTo;
+                    if (wasPlayingBeforeSeek) {
+                        audioPlayer.play();
+                    }
+                    console.log('Seeking ended: ', seekTo, 'Current time:', audioPlayer.currentTime);
+                }
+            });
+
+            seekSlider.addEventListener('input', (e) => {
+                if (isSeeking) {
+                    const seekTo = audioPlayer.duration * (e.target.value / 100);
+                    currentTimeSpan.textContent = formatTime(seekTo);
+                    console.log('Seeking to: ', seekTo, 'Displayed time:', formatTime(seekTo));
+                }
+            });
+
+            // Prevent right-click interaction for the entire music player
+            musicPlayerFooter.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+            });
+
+            volumeSlider.addEventListener('input', () => {
+                const volume = volumeSlider.value / 100;
+                audioPlayer.volume = volume;
+                audioPlayer.muted = volume === 0;
+                muteButton.textContent = volume === 0 ? 'Unmute' : 'Mute';
+                volumeLevelSpan.textContent = `${volumeSlider.value}%`;
+            });
+
+            function playSong(button = null) {
+                if (currentPlayButton) {
+                    currentPlayButton.textContent = 'Play';
+                }
+
+                if (button) {
+                    currentPlayButton = button;
+                    currentPlayButton.textContent = 'Playing';
+                } else {
+                    const buttons = document.querySelectorAll('.play-button');
+                    currentPlayButton = buttons[currentSongIndex];
+                    currentPlayButton.textContent = 'Playing';
+                }
+
+                currentSongTitleSpan.textContent = `Now Playing: ${songTitles[currentSongIndex]}`;
+
+                audioPlayer.src = songs[currentSongIndex];
+                audioPlayer.load(); // Ensure the audio is loaded before playing
+                audioPlayer.play().then(() => {
+                    musicPlayerFooter.style.display = 'flex';
+                    playButton.style.display = 'none';
+                    pauseButton.style.display = 'inline-block';
+                }).catch((error) => {
+                    console.error('Error playing audio:', error);
+                });
+            }
+
+            function updatePlayButton(text) {
+                if (currentPlayButton) {
+                    currentPlayButton.textContent = text;
+                }
+            }
+
+            function formatTime(seconds) {
+                const minutes = Math.floor(seconds / 60);
+                const secs = Math.floor(seconds % 60);
+                return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
+            }
+        });
+    </script>
+}
