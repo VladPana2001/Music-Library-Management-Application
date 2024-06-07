@@ -8,6 +8,8 @@ using Music_Library_Management_Application.Repositories.Interfaces;
 using Newtonsoft.Json;
 using System.IO;
 using System.Threading.Tasks;
+using NAudio.Wave;
+using Music_Library_Management_Application.Utilities;
 
 public class SongService : ISongService
 {
@@ -60,6 +62,38 @@ public class SongService : ISongService
         _httpContextAccessor.HttpContext.Session.SetString("UploadedFiles", JsonConvert.SerializeObject(uploadedFiles));
     }
 
+    public SongViewModel AnalyzeSong(SongFileViewModel file)
+    {
+        string songTitle = string.Empty;
+        string songArtist = string.Empty;
+        string songAlbum = string.Empty;
+        string songLength = string.Empty;
+
+        // Using TagLib to extract metadata
+        using (var stream = new MemoryStream(file.FileContent))
+        using (var tagFile = TagLib.File.Create(new StreamFileAbstraction(file.FileName, stream)))
+        {
+            songTitle = tagFile.Tag.Title;
+            songArtist = tagFile.Tag.FirstPerformer;
+            songAlbum = tagFile.Tag.Album;
+        }
+
+        // Using NAudio to get the length of the song
+        using (var mp3Reader = new Mp3FileReader(new MemoryStream(file.FileContent)))
+        {
+            songLength = mp3Reader.TotalTime.ToString(@"mm\:ss");
+        }
+
+        return new SongViewModel
+        {
+            FileName = file.FileName,
+            SongTitle = songTitle,
+            SongArtist = songArtist,
+            SongAlbum = songAlbum,
+            SongLenght = songLength
+        };
+    }
+
     public async Task<IEnumerable<SongViewModel>> GetUploadedFilesAsync()
     {
         var uploadedFilesJson = _httpContextAccessor.HttpContext.Session.GetString("UploadedFiles");
@@ -70,10 +104,8 @@ public class SongService : ISongService
         var songDetails = new List<SongViewModel>();
         foreach (var file in uploadedFiles)
         {
-            songDetails.Add(new SongViewModel
-            {
-                FileName = file.FileName
-            });
+            var songViewModel = AnalyzeSong(file);
+            songDetails.Add(songViewModel);
         }
 
         return songDetails;
