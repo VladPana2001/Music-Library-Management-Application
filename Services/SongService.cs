@@ -68,6 +68,7 @@ public class SongService : ISongService
         string songArtist = string.Empty;
         string songAlbum = string.Empty;
         string songLength = string.Empty;
+        short songBPM = 0;
 
         // Using TagLib to extract metadata
         using (var stream = new MemoryStream(file.FileContent))
@@ -84,13 +85,26 @@ public class SongService : ISongService
             songLength = mp3Reader.TotalTime.ToString(@"mm\:ss");
         }
 
+        // Using BPMDetector to get the BPM of the song
+        string tempFilePath = Path.GetTempFileName();
+        try
+        {
+            File.WriteAllBytes(tempFilePath, file.FileContent);
+            songBPM = BPMDetector.GetBPM(tempFilePath);
+        }
+        finally
+        {
+            File.Delete(tempFilePath);
+        }
+
         return new SongViewModel
         {
             FileName = file.FileName,
             SongTitle = songTitle,
             SongArtist = songArtist,
             SongAlbum = songAlbum,
-            SongLenght = songLength
+            SongLenght = songLength,
+            SongBPM = songBPM
         };
     }
 
