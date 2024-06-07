@@ -267,5 +267,20 @@ namespace Music_Library_Management_Application.Controllers
             return _repoWrapper.Songs.Find(e => e.Id == id && e.UserId == userId).Any();
         }
 
+        public async Task<IActionResult> Play(int id)
+        {
+            var user = await GetCurrentUserAsync();
+            var song = _repoWrapper.Songs.GetByIdAndUserId(id, user.Id);
+            if (song == null)
+            {
+                return NotFound();
+            }
+
+            var fileStream = new MemoryStream(song.SongFile);
+            var response = File(fileStream, "audio/mpeg", enableRangeProcessing: true);
+            return response;
+        } 
+
+
     }
 }

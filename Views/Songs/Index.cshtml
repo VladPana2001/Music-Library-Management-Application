@@ -32,6 +32,7 @@
                     <a asp-action="Edit" asp-route-id="@song.Id" class="btn btn-warning">Edit</a>
                     <a asp-action="Details" asp-route-id="@song.Id" class="btn btn-info">Details</a>
                     <a asp-action="Download" asp-route-id="@song.Id" class="btn btn-success">Download</a>
+                    <button class="btn btn-primary play-button" data-song-url="@Url.Action("Play", new { id = song.Id })" data-song-title="@song.SongTitle">Play</button>
                     <a asp-action="Delete" asp-route-id="@song.Id" class="btn btn-danger">Delete</a>
                 </td>
             </tr>
@@ -40,3 +41,14 @@
 </table>
 
 <a asp-action="UploadSongs" class="btn btn-primary">Upload New Songs</a>
+
+<!-- Include Music Player Partial View -->
+@Html.Partial("_MusicPlayer")
+
+@section Scripts {
+    <script src="~/js/music-player.js"></script>
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/music-player.css">
+}

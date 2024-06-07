@@ -1,0 +1,43 @@
+﻿@* Music Player Partial View *@
+
+<!-- Music Player Placeholder -->
+<div id="music-player-placeholder" class="fixed-bottom bg-light p-3">
+    <div class="d-flex align-items-center justify-content-center">
+        <span>Start the music player by selecting a song to play</span>
+    </div>
+</div>
+
+<!-- Music Player Footer -->
+<div id="music-player-footer" class="fixed-bottom bg-light p-3" style="display: none;">
+    <div class="d-flex flex-column">
+        <span id="current-song-title" class="mx-2 mb-2"></span>
+        <div class="d-flex align-items-center justify-content-center w-100">
+            <button id="prev-button" class="btn btn-secondary mx-1 fixed-icon-button">
+                <i class="fas fa-backward"></i>
+            </button>
+            <button id="play-button" class="btn btn-primary mx-1 fixed-icon-button">
+                <i class="fas fa-play"></i>
+            </button>
+            <button id="pause-button" class="btn btn-primary mx-1 fixed-icon-button" style="display: none;">
+                <i class="fas fa-pause"></i>
+            </button>
+            <button id="next-button" class="btn btn-secondary mx-1 fixed-icon-button">
+                <i class="fas fa-forward"></i>
+            </button>
+            <button id="replay-button" class="btn btn-secondary mx-1 fixed-icon-button">
+                <i class="fas fa-times"></i> <span class="d-none">Repeat Off</span>
+            </button>
+            <span id="current-time" class="mx-2">0:00</span>
+            <input type="range" id="seek-slider" value="0" max="100" class="mx-2" style="width: 30vw;">
+            <span id="total-time" class="mx-2">0:00</span>
+            <button id="mute-button" class="btn btn-secondary mx-1 fixed-icon-button">
+                <i class="fas fa-volume-up"></i>
+            </button>
+            <input type="range" id="volume-slider" value="50" max="100" class="mx-2">
+            <span id="volume-level" class="mx-2">50%</span>
+        </div>
+    </div>
+</div>
+
+<!-- Audio Element -->
+<audio id="audio-player" style="display: none;"></audio>
