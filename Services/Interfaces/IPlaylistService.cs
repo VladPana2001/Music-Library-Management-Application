@@ -12,6 +12,6 @@ namespace Music_Library_Management_Application.Services.Interfaces
         Task DeletePlaylistAsync(int playlistId, string userId);
         Task<PlaylistCreateViewModel> GetPlaylistForEditAsync(int playlistId, string userId);
         Task UpdatePlaylistAsync(int playlistId, PlaylistCreateViewModel viewModel, string userId);
-        Task<byte[]> GenerateCombinedAudioFileAsync(int playlistId, string userId);
+        Task<PlaylistFile> GenerateCombinedAudioFileForPlaylistAsync(int playlistId, string userId);
     }
 }

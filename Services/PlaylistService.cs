@@ -135,7 +135,7 @@ namespace Music_Library_Management_Application.Services
             }
         }
 
-        public async Task<byte[]> GenerateCombinedAudioFileAsync(int playlistId, string userId)
+        public async Task<PlaylistFile> GenerateCombinedAudioFileForPlaylistAsync(int playlistId, string userId)
         {
             var playlist = await GetPlaylistDetailsAsync(playlistId, userId);
             if (playlist == null || !playlist.Songs.Any())
@@ -178,7 +178,12 @@ namespace Music_Library_Management_Application.Services
                         }
                     }
                 }
-                return memoryStream.ToArray();
+
+                return new PlaylistFile
+                {
+                    FileName = $"{playlist.Playlist.PlaylistTitle}.mp3",
+                    FileBytes = memoryStream.ToArray()
+                };
             }
         }
     }

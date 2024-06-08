@@ -135,17 +135,14 @@ namespace Music_Library_Management_Application.Controllers
         public async Task<IActionResult> Download(int id)
         {
             var user = await GetCurrentUserAsync();
-            var fileBytes = await _playlistService.GenerateCombinedAudioFileAsync(id, user.Id);
+            var playlistFile = await _playlistService.GenerateCombinedAudioFileForPlaylistAsync(id, user.Id);
 
-            if (fileBytes == null)
+            if (playlistFile.FileName == null || playlistFile.FileBytes == null)
             {
                 return NotFound();
             }
 
-            var playlist = await _playlistService.GetPlaylistDetailsAsync(id, user.Id);
-            var outputFileName = $"{playlist.Playlist.PlaylistTitle}.mp3";
-
-            return File(fileBytes, "audio/mpeg", outputFileName);
+            return File(playlistFile.FileBytes, "audio/mpeg", playlistFile.FileName);
         }
     }
 }
