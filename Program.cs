@@ -2,6 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using Music_Library_Management_Application.Data;
 using Music_Library_Management_Application.Repositories.Interfaces;
 using Music_Library_Management_Application.Repositories;
+using Music_Library_Management_Application.Services.Interfaces;
+using Music_Library_Management_Application.Services;
 using Microsoft.AspNetCore.Identity;
 using Music_Library_Management_Application.Models.DbModels;
 
@@ -49,6 +51,7 @@ builder.Services.AddScoped<IPlaylistRepository, PlaylistRepository>();
 builder.Services.AddScoped<IRepositoryWrapper, RepositoryWrapper>();
 
 builder.Services.AddScoped<ISongService, SongService>();
+builder.Services.AddScoped<IPlaylistService, PlaylistService>();
 
 var app = builder.Build();
 
