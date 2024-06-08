@@ -1,32 +1,30 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Music_Library_Management_Application.Models;
 using Music_Library_Management_Application.Models.DbModels;
-using Music_Library_Management_Application.Repositories;
-using Music_Library_Management_Application.Repositories.Interfaces;
-using Newtonsoft.Json;
+using System.Threading.Tasks;
 
 namespace Music_Library_Management_Application.Controllers
 {
     [Authorize]
     public class SongsController : Controller
     {
-        private readonly IRepositoryWrapper _repoWrapper;
+        private readonly ISongService _songService;
         private readonly UserManager<User> _userManager;
 
-        public SongsController(IRepositoryWrapper repoWrapper, UserManager<User> userManager)
+        public SongsController(ISongService songService, UserManager<User> userManager)
         {
-            _repoWrapper = repoWrapper;
+            _songService = songService;
             _userManager = userManager;
         }
+
         private async Task<User> GetCurrentUserAsync() => await _userManager.GetUserAsync(HttpContext.User);
 
         public async Task<IActionResult> Index()
         {
             var user = await GetCurrentUserAsync();
-            var songs = _repoWrapper.Songs.GetAllByUserId(user.Id);
+            var songs = await _songService.GetAllSongsByUserIdAsync(user.Id);
             return View(songs);
         }
 
@@ -39,105 +37,57 @@ namespace Music_Library_Management_Application.Controllers
         [HttpPost]
         public async Task<IActionResult> UploadSongs(List<IFormFile> files)
         {
-            if (files == null || files.Count == 0)
+            var user = await GetCurrentUserAsync();
+            try
             {
-                ViewBag.Message = "No files selected for upload.";
+                await _songService.UploadSongsAsync(files, user.Id);
+                return RedirectToAction("EnterSongDetails");
+            }
+            catch (ArgumentException ex)
+            {
+                ViewBag.Message = ex.Message;
                 return View();
             }
-
-            var uploadedFiles = new List<SongFileViewModel>();
-
-            foreach (var file in files)
-            {
-                if (file.Length > 0)
-                {
-                    using (var memoryStream = new MemoryStream())
-                    {
-                        await file.CopyToAsync(memoryStream);
-                        uploadedFiles.Add(new SongFileViewModel
-                        {
-                            FileName = file.FileName,
-                            FileContent = memoryStream.ToArray()
-                        });
-                    }
-                }
-            }
-
-            HttpContext.Session.SetString("UploadedFiles", JsonConvert.SerializeObject(uploadedFiles));
-            return RedirectToAction("EnterSongDetails");
         }
 
         [HttpGet]
-        public IActionResult EnterSongDetails()
+        public async Task<IActionResult> EnterSongDetails()
         {
-            var uploadedFilesJson = HttpContext.Session.GetString("UploadedFiles");
-            var uploadedFiles = uploadedFilesJson != null
-                ? JsonConvert.DeserializeObject<List<SongFileViewModel>>(uploadedFilesJson)
-                : new List<SongFileViewModel>();
-
-            var songDetails = new List<SongViewModel>();
-            foreach (var file in uploadedFiles)
-            {
-                songDetails.Add(new SongViewModel
-                {
-                    FileName = file.FileName
-                });
-            }
-
+            var songDetails = await _songService.GetUploadedFilesAsync();
             return View(songDetails);
         }
+
         [HttpPost]
         public async Task<IActionResult> EnterSongDetails(List<SongViewModel> songs)
         {
-            if (songs == null || songs.Count == 0)
+            var user = await GetCurrentUserAsync();
+            try
             {
-                ViewBag.Message = "No song details provided.";
+                await _songService.SaveSongsAsync(songs, user.Id);
+                ViewBag.Message = "Songs uploaded and saved successfully.";
+                return RedirectToAction("Index");
+            }
+            catch (ArgumentException ex)
+            {
+                ViewBag.Message = ex.Message;
                 return View(songs);
             }
-
-            var uploadedFilesJson = HttpContext.Session.GetString("UploadedFiles");
-            var uploadedFiles = uploadedFilesJson != null
-                ? JsonConvert.DeserializeObject<List<SongFileViewModel>>(uploadedFilesJson)
-                : new List<SongFileViewModel>();
-
-            var user = await GetCurrentUserAsync();
-
-            foreach (var songViewModel in songs)
-            {
-                var file = uploadedFiles.Find(f => f.FileName == songViewModel.FileName);
-                if (file != null)
-                {
-                    var song = new Song
-                    {
-                        SongTitle = songViewModel.SongTitle,
-                        Description = songViewModel.Description,
-                        SongArtist = songViewModel.SongArtist,
-                        SongAlbum = songViewModel.SongAlbum,
-                        SongLenght = songViewModel.SongLenght,
-                        SongBPM = songViewModel.SongBPM,
-                        SongFile = file.FileContent,
-                        UserId = user.Id
-                    };
-
-                    _repoWrapper.Songs.Add(song);
-                }
-            }
-            HttpContext.Session.Remove("UploadedFiles");
-            ViewBag.Message = "Songs uploaded and saved successfully.";
-            return RedirectToAction("Index");
         }
 
         public async Task<IActionResult> Download(int id)
         {
             var user = await GetCurrentUserAsync();
-            var song = _repoWrapper.Songs.GetByIdAndUserId(id, user.Id);
-            if (song == null)
+            try
+            {
+                var (fileContent, fileName) = await _songService.GetSongFileAsync(id, user.Id);
+                return File(fileContent, "application/octet-stream", fileName);
+            }
+            catch (KeyNotFoundException)
             {
                 return NotFound();
             }
-
-            return File(song.SongFile, "application/octet-stream", song.SongTitle + ".mp3");
         }
+
         [HttpGet]
         public async Task<IActionResult> Details(int? id)
         {
@@ -147,7 +97,7 @@ namespace Music_Library_Management_Application.Controllers
             }
 
             var user = await GetCurrentUserAsync();
-            var song = _repoWrapper.Songs.GetByIdAndUserId(id.Value, user.Id);
+            var song = await _songService.GetSongDetailsAsync(id.Value, user.Id);
             if (song == null)
             {
                 return NotFound();
@@ -156,7 +106,6 @@ namespace Music_Library_Management_Application.Controllers
             return View(song);
         }
 
-        // GET: Songs/Edit/5
         [HttpGet]
         public async Task<IActionResult> Edit(int? id)
         {
@@ -166,7 +115,7 @@ namespace Music_Library_Management_Application.Controllers
             }
 
             var user = await GetCurrentUserAsync();
-            var song = _repoWrapper.Songs.GetByIdAndUserId(id.Value, user.Id);
+            var song = await _songService.GetSongDetailsAsync(id.Value, user.Id);
             if (song == null)
             {
                 return NotFound();
@@ -174,52 +123,23 @@ namespace Music_Library_Management_Application.Controllers
             return View(song);
         }
 
-        // POST: Songs/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,SongTitle,Description,SongArtist,SongAlbum,SongLenght,SongBPM")] Song songModel)
         {
-            if (id != songModel.Id)
-            {
-                return NotFound();
-            }
-
             var user = await GetCurrentUserAsync();
-            var song = _repoWrapper.Songs.GetByIdAndUserId(id, user.Id);
-
-            if (song == null)
-            {
-                return NotFound();
-            }
-
-            // Update the values
-            song.SongTitle = songModel.SongTitle;
-            song.Description = songModel.Description;
-            song.SongArtist = songModel.SongArtist;
-            song.SongAlbum = songModel.SongAlbum;
-            song.SongLenght = songModel.SongLenght;
-            song.SongBPM = songModel.SongBPM;
-
             try
             {
-                _repoWrapper.Songs.Update(song);
+                await _songService.UpdateSongAsync(id, songModel, user.Id);
+                return RedirectToAction(nameof(Index));
             }
-            catch (DbUpdateConcurrencyException)
+            catch (KeyNotFoundException)
             {
-                if (!SongExists(songModel.Id, user.Id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                return NotFound();
             }
-
-            return RedirectToAction(nameof(Index));
         }
 
-        // GET: Songs/Delete/5
+        [HttpGet]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -228,7 +148,7 @@ namespace Music_Library_Management_Application.Controllers
             }
 
             var user = await GetCurrentUserAsync();
-            var song = _repoWrapper.Songs.GetByIdAndUserId(id.Value, user.Id);
+            var song = await _songService.GetSongDetailsAsync(id.Value, user.Id);
             if (song == null)
             {
                 return NotFound();
@@ -237,50 +157,34 @@ namespace Music_Library_Management_Application.Controllers
             return View(song);
         }
 
-        // POST: Songs/Delete/5
         [HttpPost, ActionName("DeleteConfirmed")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var user = await GetCurrentUserAsync();
-            var song = _repoWrapper.Songs.GetByIdAndUserId(id, user.Id);
-            if (song == null)
+            try
+            {
+                await _songService.DeleteSongAsync(id, user.Id);
+                return RedirectToAction(nameof(Index));
+            }
+            catch (KeyNotFoundException)
             {
                 return NotFound();
             }
-
-            // Find and delete all SongPlaylist links
-            var songPlaylists = _repoWrapper.SongPlaylists.Find(sp => sp.SongId == id).ToList();
-            foreach (var songPlaylist in songPlaylists)
-            {
-                _repoWrapper.SongPlaylists.Delete(songPlaylist);
-            }
-
-            // Delete the song
-            _repoWrapper.Songs.Delete(song);
-
-            return RedirectToAction(nameof(Index));
-        }
-
-        private bool SongExists(int id, string userId)
-        {
-            return _repoWrapper.Songs.Find(e => e.Id == id && e.UserId == userId).Any();
         }
 
         public async Task<IActionResult> Play(int id)
         {
             var user = await GetCurrentUserAsync();
-            var song = _repoWrapper.Songs.GetByIdAndUserId(id, user.Id);
-            if (song == null)
+            try
+            {
+                var response = await _songService.PlaySongAsync(id, user.Id);
+                return response;
+            }
+            catch (KeyNotFoundException)
             {
                 return NotFound();
             }
-
-            var fileStream = new MemoryStream(song.SongFile);
-            var response = File(fileStream, "audio/mpeg", enableRangeProcessing: true);
-            return response;
-        } 
-
-
+        }
     }
 }
