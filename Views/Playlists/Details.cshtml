@@ -4,7 +4,12 @@
     ViewData["Title"] = "Playlist Details";
 }
 
+<div>
+    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+</div>
+
 <h1>Playlist Details</h1>
+
 
 <div>
     <h4>Playlist</h4>
@@ -35,6 +40,7 @@
                 <th>Album</th>
                 <th>Length</th>
                 <th>BPM</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -46,12 +52,21 @@
                     <td>@song.SongAlbum</td>
                     <td>@song.SongLenght</td>
                     <td>@song.SongBPM</td>
+                    <td>
+                        <button class="btn btn-primary play-button" data-song-url="@Url.Action("Play", "Songs", new { id = song.Id })" data-song-title="@song.SongTitle">Play</button>
+                    </td>
                 </tr>
             }
         </tbody>
     </table>
 </div>
 
-<div>
-    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
-</div>
+@Html.Partial("_MusicPlayer")
+
+@section Scripts {
+    <script src="~/js/music-player.js"></script>
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/music-player.css">
+}
