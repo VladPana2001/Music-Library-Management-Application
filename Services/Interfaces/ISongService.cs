@@ -2,6 +2,8 @@
 using Music_Library_Management_Application.Models;
 using Music_Library_Management_Application.Models.DbModels;
 
+namespace Music_Library_Management_Application.Services.Interfaces
+{ 
 public interface ISongService
 {
     Task<IEnumerable<Song>> GetAllSongsByUserIdAsync(string userId);
@@ -15,4 +17,5 @@ public interface ISongService
     Task DeleteSongAsync(int id, string userId);
     Task<FileStreamResult> PlaySongAsync(int id, string userId);
     Task<(byte[] FileContent, string FileName)> GetSongFileAsync(int id, string userId);
+}
 }

@@ -5,18 +5,19 @@ using Microsoft.EntityFrameworkCore;
 using Music_Library_Management_Application.Models;
 using Music_Library_Management_Application.Models.DbModels;
 using Music_Library_Management_Application.Repositories.Interfaces;
+using Music_Library_Management_Application.Services.Interfaces;
 
 namespace Music_Library_Management_Application.Controllers
 {
     [Authorize]
     public class PlaylistsController : Controller
     {
-        private readonly IRepositoryWrapper _repoWrapper;
+        private readonly IPlaylistService _playlistService;
         private readonly UserManager<User> _userManager;
 
-        public PlaylistsController(IRepositoryWrapper repoWrapper, UserManager<User> userManager)
+        public PlaylistsController(IPlaylistService playlistService, UserManager<User> userManager)
         {
-            _repoWrapper = repoWrapper;
+            _playlistService = playlistService;
             _userManager = userManager;
         }
 
@@ -25,7 +26,7 @@ namespace Music_Library_Management_Application.Controllers
         public async Task<IActionResult> Index()
         {
             var user = await GetCurrentUserAsync();
-            var playlists = _repoWrapper.Playlists.GetAllByUserId(user.Id);
+            var playlists = await _playlistService.GetAllPlaylistsByUserIdAsync(user.Id);
             return View(playlists);
         }
 
@@ -33,11 +34,11 @@ namespace Music_Library_Management_Application.Controllers
         public async Task<IActionResult> Create()
         {
             var user = await GetCurrentUserAsync();
-            var allUserSongs = _repoWrapper.Songs.GetAllByUserId(user.Id).ToList();
+            var allUserSongs = await _playlistService.GetAllSongsByUserIdAsync(user.Id);
             var viewModel = new PlaylistCreateViewModel
             {
                 Playlist = new Playlist(),
-                AllUserSongs = allUserSongs
+                AllUserSongs = allUserSongs.ToList()
             };
             return View(viewModel);
         }
@@ -46,38 +47,8 @@ namespace Music_Library_Management_Application.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(PlaylistCreateViewModel viewModel)
         {
-
             var user = await GetCurrentUserAsync();
-
-            // Create a new Playlist instance
-            var playlist = new Playlist
-            {
-                PlaylistTitle = viewModel.Playlist.PlaylistTitle,
-                PlaylistDescription = viewModel.Playlist.PlaylistDescription,
-                UserId = user.Id,
-                User = user,
-                SongPlaylists = new List<SongPlaylist>()
-            };
-
-            _repoWrapper.Playlists.Add(playlist);
-
-            // Create SongPlaylists to link the songs to the playlist
-            foreach (var songId in viewModel.SelectedSongIds)
-            {
-                var songPlaylist = new SongPlaylist
-                {   
-                    SongId = songId,
-                    Song = _repoWrapper.Songs.GetById(songId),   
-                    PlaylistId = playlist.Id,
-                    Playlist = playlist
-                };
-                _repoWrapper.SongPlaylists.Add(songPlaylist);
-                playlist.SongPlaylists.Add(songPlaylist);
-            }
-
-            _repoWrapper.Playlists.Update(playlist);
-           
-
+            await _playlistService.CreatePlaylistAsync(viewModel, user.Id);
             return RedirectToAction(nameof(Index));
         }
 
@@ -90,20 +61,11 @@ namespace Music_Library_Management_Application.Controllers
             }
 
             var user = await GetCurrentUserAsync();
-            var playlist = _repoWrapper.Playlists.GetByIdAndUserId(id.Value, user.Id);
-            if (playlist == null)
+            var viewModel = await _playlistService.GetPlaylistDetailsAsync(id.Value, user.Id);
+            if (viewModel == null)
             {
                 return NotFound();
             }
-
-            var songPlaylists = _repoWrapper.SongPlaylists.Find(sp => sp.PlaylistId == playlist.Id).ToList();
-            var songs = songPlaylists.Select(sp => _repoWrapper.Songs.GetById(sp.SongId)).ToList();
-
-            var viewModel = new PlaylistDetailsViewModel
-            {
-                Playlist = playlist,
-                Songs = songs
-            };
 
             return View(viewModel);
         }
@@ -117,20 +79,11 @@ namespace Music_Library_Management_Application.Controllers
             }
 
             var user = await GetCurrentUserAsync();
-            var playlist = _repoWrapper.Playlists.GetByIdAndUserId(id.Value, user.Id);
-            if (playlist == null)
+            var viewModel = await _playlistService.GetPlaylistDetailsAsync(id.Value, user.Id);
+            if (viewModel == null)
             {
                 return NotFound();
             }
-
-            var songPlaylists = _repoWrapper.SongPlaylists.Find(sp => sp.PlaylistId == playlist.Id).ToList();
-            var songs = songPlaylists.Select(sp => _repoWrapper.Songs.GetById(sp.SongId)).ToList();
-
-            var viewModel = new PlaylistDetailsViewModel
-            {
-                Playlist = playlist,
-                Songs = songs
-            };
 
             return View(viewModel);
         }
@@ -140,26 +93,8 @@ namespace Music_Library_Management_Application.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var user = await GetCurrentUserAsync();
-            var playlist = _repoWrapper.Playlists.GetByIdAndUserId(id, user.Id);
-            if (playlist == null)
-            {
-                return NotFound();
-            }
-
-            var songPlaylists = _repoWrapper.SongPlaylists.Find(sp => sp.PlaylistId == playlist.Id).ToList();
-            foreach (var songPlaylist in songPlaylists)
-            {
-                _repoWrapper.SongPlaylists.Delete(songPlaylist);
-            }
-
-            _repoWrapper.Playlists.Delete(playlist);
-
+            await _playlistService.DeletePlaylistAsync(id, user.Id);
             return RedirectToAction(nameof(Index));
-        }
-
-        private bool PlaylistExists(int id, string userId)
-        {
-            return _repoWrapper.Playlists.Find(e => e.Id == id && e.UserId == userId).Any();
         }
 
         [HttpGet]
@@ -171,21 +106,11 @@ namespace Music_Library_Management_Application.Controllers
             }
 
             var user = await GetCurrentUserAsync();
-            var playlist = _repoWrapper.Playlists.GetByIdAndUserId(id.Value, user.Id);
-            if (playlist == null)
+            var viewModel = await _playlistService.GetPlaylistForEditAsync(id.Value, user.Id);
+            if (viewModel == null)
             {
                 return NotFound();
             }
-
-            var allUserSongs = _repoWrapper.Songs.GetAllByUserId(user.Id).ToList();
-            var selectedSongIds = _repoWrapper.SongPlaylists.Find(sp => sp.PlaylistId == id.Value).Select(sp => sp.SongId).ToList();
-
-            var viewModel = new PlaylistCreateViewModel
-            {
-                Playlist = playlist,
-                AllUserSongs = allUserSongs,
-                SelectedSongIds = selectedSongIds
-            };
 
             return View(viewModel);
         }
@@ -200,53 +125,7 @@ namespace Music_Library_Management_Application.Controllers
             }
 
             var user = await GetCurrentUserAsync();
-            var existingPlaylist = _repoWrapper.Playlists.GetByIdAndUserId(id, user.Id);
-
-            if (existingPlaylist == null)
-            {
-                return NotFound();
-            }
-
-            existingPlaylist.PlaylistTitle = viewModel.Playlist.PlaylistTitle;
-            existingPlaylist.PlaylistDescription = viewModel.Playlist.PlaylistDescription;
-
-            try
-            {
-                // Update the Playlist
-                _repoWrapper.Playlists.Update(existingPlaylist);
-
-                // Remove existing SongPlaylists
-                var existingSongPlaylists = _repoWrapper.SongPlaylists.Find(sp => sp.PlaylistId == id).ToList();
-                foreach (var songPlaylist in existingSongPlaylists)
-                {
-                    _repoWrapper.SongPlaylists.Delete(songPlaylist);
-                }
-
-                // Add the new SongPlaylists
-                foreach (var songId in viewModel.SelectedSongIds)
-                {
-                    var songPlaylist = new SongPlaylist
-                    {
-                        SongId = songId,
-                        PlaylistId = existingPlaylist.Id,
-                        Song = _repoWrapper.Songs.GetById(songId),
-                        Playlist = existingPlaylist
-                    };
-
-                    _repoWrapper.SongPlaylists.Add(songPlaylist);
-                }
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!PlaylistExists(viewModel.Playlist.Id, user.Id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            await _playlistService.UpdatePlaylistAsync(id, viewModel, user.Id);
 
             return RedirectToAction(nameof(Index));
         }
