@@ -6,6 +6,7 @@ using Music_Library_Management_Application.Models;
 using Music_Library_Management_Application.Models.DbModels;
 using Music_Library_Management_Application.Repositories.Interfaces;
 using Music_Library_Management_Application.Services.Interfaces;
+using NAudio.Wave;
 
 namespace Music_Library_Management_Application.Controllers
 {
@@ -128,6 +129,23 @@ namespace Music_Library_Management_Application.Controllers
             await _playlistService.UpdatePlaylistAsync(id, viewModel, user.Id);
 
             return RedirectToAction(nameof(Index));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Download(int id)
+        {
+            var user = await GetCurrentUserAsync();
+            var fileBytes = await _playlistService.GenerateCombinedAudioFileAsync(id, user.Id);
+
+            if (fileBytes == null)
+            {
+                return NotFound();
+            }
+
+            var playlist = await _playlistService.GetPlaylistDetailsAsync(id, user.Id);
+            var outputFileName = $"{playlist.Playlist.PlaylistTitle}.mp3";
+
+            return File(fileBytes, "audio/mpeg", outputFileName);
         }
     }
 }

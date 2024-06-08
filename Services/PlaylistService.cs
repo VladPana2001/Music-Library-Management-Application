@@ -2,6 +2,7 @@
 using Music_Library_Management_Application.Models;
 using Music_Library_Management_Application.Repositories.Interfaces;
 using Music_Library_Management_Application.Services.Interfaces;
+using NAudio.Wave;
 
 namespace Music_Library_Management_Application.Services
 {
@@ -131,6 +132,53 @@ namespace Music_Library_Management_Application.Services
                     PlaylistId = existingPlaylist.Id,
                 };
                 _repoWrapper.SongPlaylists.Add(songPlaylist);
+            }
+        }
+
+        public async Task<byte[]> GenerateCombinedAudioFileAsync(int playlistId, string userId)
+        {
+            var playlist = await GetPlaylistDetailsAsync(playlistId, userId);
+            if (playlist == null || !playlist.Songs.Any())
+            {
+                return null;
+            }
+
+            using (var memoryStream = new MemoryStream())
+            {
+                using (var waveFileWriter = new WaveFileWriter(memoryStream, new WaveFormat()))
+                {
+                    foreach (var song in playlist.Songs)
+                    {
+                        using (var mp3Reader = new Mp3FileReader(new MemoryStream(song.SongFile)))
+                        {
+                            if (waveFileWriter.WaveFormat.SampleRate != mp3Reader.WaveFormat.SampleRate ||
+                                waveFileWriter.WaveFormat.Channels != mp3Reader.WaveFormat.Channels)
+                            {
+                                // Convert to the same format if necessary
+                                using (var resampler = new MediaFoundationResampler(mp3Reader, waveFileWriter.WaveFormat))
+                                {
+                                    resampler.ResamplerQuality = 60; // Quality of the conversion
+                                    byte[] buffer = new byte[1024];
+                                    int bytesRead;
+                                    while ((bytesRead = resampler.Read(buffer, 0, buffer.Length)) > 0)
+                                    {
+                                        waveFileWriter.Write(buffer, 0, bytesRead);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                byte[] buffer = new byte[1024];
+                                int bytesRead;
+                                while ((bytesRead = mp3Reader.Read(buffer, 0, buffer.Length)) > 0)
+                                {
+                                    waveFileWriter.Write(buffer, 0, bytesRead);
+                                }
+                            }
+                        }
+                    }
+                }
+                return memoryStream.ToArray();
             }
         }
     }
