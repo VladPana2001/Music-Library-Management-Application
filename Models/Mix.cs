@@ -14,5 +14,7 @@
         public double StartTime { get; set; } = 0;
         public double EndTime { get; set; } = 0;
         public int Order { get; set; }
+        public double FadeInDuration { get; set; }
+        public double FadeOutDuration { get; set; }
     }
 }

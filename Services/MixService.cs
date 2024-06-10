@@ -3,6 +3,8 @@ using Music_Library_Management_Application.Models.DbModels;
 using Music_Library_Management_Application.Repositories.Interfaces;
 using Music_Library_Management_Application.Services.Interfaces;
 using NAudio.Wave;
+using NAudio.Wave.SampleProviders;
+using System.Drawing.Printing;
 
 namespace Music_Library_Management_Application.Services
 {
@@ -48,15 +50,29 @@ namespace Music_Library_Management_Application.Services
                             mp3Reader.CurrentTime = TimeSpan.FromSeconds(mixSong.StartTime);
                             var endTime = mixSong.EndTime > 0 ? TimeSpan.FromSeconds(mixSong.EndTime) : mp3Reader.TotalTime;
 
+                            // Apply fade-in and fade-out
+                            var sampleProvider = mp3Reader.ToSampleProvider();
+                            var fadeInOutProvider = new FadeInOutSampleProvider(sampleProvider, true);
+                            fadeInOutProvider.BeginFadeIn(mixSong.FadeInDuration * 1000); // Convert seconds to milliseconds
+
+                            // Flag to ensure fade-out is only called once
+                            bool fadeOutStarted = false;
+
                             // Resample if necessary
-                            using (var resampler = new MediaFoundationResampler(mp3Reader, outputFormat))
+                            using (var resampler = new MediaFoundationResampler(fadeInOutProvider.ToWaveProvider(), outputFormat))
                             {
                                 resampler.ResamplerQuality = 60; // Quality of the conversion
                                 var buffer = new byte[1024];
-                                while (mp3Reader.CurrentTime < endTime)
+                                while (mp3Reader.CurrentTime <= endTime)
                                 {
-                                    var bytesRequired = Math.Min((int)(endTime - mp3Reader.CurrentTime).TotalSeconds * mp3Reader.WaveFormat.AverageBytesPerSecond, buffer.Length);
-                                    var bytesRead = resampler.Read(buffer, 0, bytesRequired);
+                                    if (!fadeOutStarted && mp3Reader.CurrentTime.TotalSeconds >= endTime.TotalSeconds - mixSong.FadeOutDuration)
+                                    {
+                                        fadeInOutProvider.BeginFadeOut(mixSong.FadeOutDuration * 1000); // Start fade-out
+                                        fadeOutStarted = true;
+                                    }
+
+                                    
+                                    var bytesRead = resampler.Read(buffer, 0, buffer.Length);
                                     if (bytesRead == 0) break;
 
                                     waveFileWriter.Write(buffer, 0, bytesRead);
