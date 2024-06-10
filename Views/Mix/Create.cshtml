@@ -26,7 +26,7 @@
                 {
                     <li class="list-group-item">
                         @song.SongTitle
-                        <button type="button" class="btn btn-success btn-sm float-right" onclick="addSongToMix(@song.Id, '@song.SongTitle')">+</button>
+                        <button type="button" class="btn btn-success btn-sm float-right" onclick="addSongToMix(@song.Id, '@song.SongTitle', @Model.ConvertToSeconds(song.SongLenght))">+</button>
                     </li>
                 }
             </ul>
@@ -37,17 +37,19 @@
                 @for (int i = 0; i < Model.MixSongs.Count; i++)
                 {
                     var mixSong = Model.MixSongs[i];
+                    var songLength = Model.AllSongs.FirstOrDefault(s => s.Id == mixSong.SongId)?.SongLenght ?? "0";
+                    var maxLength = @Model.ConvertToSeconds(songLength);
                     <li class="list-group-item">
                         @mixSong.Title
                         <input type="hidden" name="MixSongs[@i].SongId" value="@mixSong.SongId" />
                         <input type="hidden" name="MixSongs[@i].Order" value="@i" />
+                        <input type="hidden" name="MixSongs[@i].StartTime" value="@mixSong.StartTime" />
+                        <input type="hidden" name="MixSongs[@i].EndTime" value="@mixSong.EndTime" />
                         <div class="form-group">
-                            <label>Start Time</label>
-                            <input type="number" class="form-control" name="MixSongs[@i].StartTime" value="@mixSong.StartTime" />
-                        </div>
-                        <div class="form-group">
-                            <label>End Time</label>
-                            <input type="number" class="form-control" name="MixSongs[@i].EndTime" value="@mixSong.EndTime" />
+                            <label>Trim Song</label>
+                            <div id="slider-@i" data-max="@maxLength"></div>
+                            <span>Start: <span id="start-time-@i">@mixSong.StartTime</span>s</span>
+                            <span>End: <span id="end-time-@i">@mixSong.EndTime</span>s</span>
                         </div>
                         <button type="button" class="btn btn-danger btn-sm" onclick="removeSongFromMix(this)">Remove</button>
                         <button type="button" class="btn btn-primary btn-sm" onclick="moveSongUp(this)">↑</button>
@@ -63,7 +65,7 @@
 
 @section Scripts {
     <script>
-        function addSongToMix(songId, songTitle) {
+        function addSongToMix(songId, songTitle, songLength) {
             const mixSongsList = document.getElementById('mixSongsList');
             const songCount = mixSongsList.childElementCount;
 
@@ -73,19 +75,20 @@
                         ${songTitle}
                         <input type="hidden" name="MixSongs[${songCount}].SongId" value="${songId}" />
                         <input type="hidden" name="MixSongs[${songCount}].Order" value="${songCount}" />
+                        <input type="hidden" name="MixSongs[${songCount}].StartTime" value="0" />
+                        <input type="hidden" name="MixSongs[${songCount}].EndTime" value="${songLength}" />
                         <div class="form-group">
-                            <label>Start Time</label>
-                            <input type="number" class="form-control" name="MixSongs[${songCount}].StartTime" value="0" />
-                        </div>
-                        <div class="form-group">
-                            <label>End Time</label>
-                            <input type="number" class="form-control" name="MixSongs[${songCount}].EndTime" value="0" />
+                            <label>Trim Song</label>
+                            <div id="slider-${songCount}" data-max="${songLength}"></div>
+                            <span>Start: <span id="start-time-${songCount}">0</span>s</span>
+                            <span>End: <span id="end-time-${songCount}">${songLength}</span>s</span>
                         </div>
                         <button type="button" class="btn btn-danger btn-sm" onclick="removeSongFromMix(this)">Remove</button>
                         <button type="button" class="btn btn-primary btn-sm" onclick="moveSongUp(this)">↑</button>
                         <button type="button" class="btn btn-primary btn-sm" onclick="moveSongDown(this)">↓</button>
                     `;
             mixSongsList.appendChild(li);
+            initializeSlider(songCount, songLength);
         }
 
         function removeSongFromMix(button) {
@@ -120,5 +123,40 @@
                 orderInput.value = i;
             }
         }
+
+        function initializeSlider(index, max) {
+            const slider = document.getElementById(`slider-${index}`);
+            noUiSlider.create(slider, {
+                start: [0, max],
+                connect: true,
+                range: {
+                    'min': 0,
+                    'max': max
+                }
+            });
+
+            const startTimeSpan = document.getElementById(`start-time-${index}`);
+            const endTimeSpan = document.getElementById(`end-time-${index}`);
+            const startTimeInput = document.querySelector(`input[name="MixSongs[${index}].StartTime"]`);
+            const endTimeInput = document.querySelector(`input[name="MixSongs[${index}].EndTime"]`);
+
+            slider.noUiSlider.on('update', function (values, handle) {
+                if (handle === 0) {
+                    startTimeSpan.textContent = values[0];
+                    startTimeInput.value = values[0];
+                } else {
+                    endTimeSpan.textContent = values[1];
+                    endTimeInput.value = values[1];
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const sliders = document.querySelectorAll('[id^="slider-"]');
+            sliders.forEach((slider, index) => {
+                const max = slider.getAttribute('data-max');
+                initializeSlider(index, max);
+            });
+        });
     </script>
 }
