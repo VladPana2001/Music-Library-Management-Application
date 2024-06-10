@@ -1,0 +1,124 @@
+﻿@model Music_Library_Management_Application.Models.MixCreateViewModel
+
+@{
+    ViewData["Title"] = "Create Mix";
+}
+
+<h1>Create Mix</h1>
+
+<form asp-action="Create" method="post">
+    <div class="form-group">
+        <label asp-for="MixName" class="control-label"></label>
+        <input asp-for="MixName" class="form-control" />
+        <span asp-validation-for="MixName" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="MixDescription" class="control-label"></label>
+        <textarea asp-for="MixDescription" class="form-control"></textarea>
+        <span asp-validation-for="MixDescription" class="text-danger"></span>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <h3>Your Songs</h3>
+            <ul class="list-group">
+                @foreach (var song in Model.AllSongs)
+                {
+                    <li class="list-group-item">
+                        @song.SongTitle
+                        <button type="button" class="btn btn-success btn-sm float-right" onclick="addSongToMix(@song.Id, '@song.SongTitle')">+</button>
+                    </li>
+                }
+            </ul>
+        </div>
+        <div class="col-md-6">
+            <h3>Mix Songs</h3>
+            <ul class="list-group" id="mixSongsList">
+                @for (int i = 0; i < Model.MixSongs.Count; i++)
+                {
+                    var mixSong = Model.MixSongs[i];
+                    <li class="list-group-item">
+                        @mixSong.Title
+                        <input type="hidden" name="MixSongs[@i].SongId" value="@mixSong.SongId" />
+                        <input type="hidden" name="MixSongs[@i].Order" value="@i" />
+                        <div class="form-group">
+                            <label>Start Time</label>
+                            <input type="number" class="form-control" name="MixSongs[@i].StartTime" value="@mixSong.StartTime" />
+                        </div>
+                        <div class="form-group">
+                            <label>End Time</label>
+                            <input type="number" class="form-control" name="MixSongs[@i].EndTime" value="@mixSong.EndTime" />
+                        </div>
+                        <button type="button" class="btn btn-danger btn-sm" onclick="removeSongFromMix(this)">Remove</button>
+                        <button type="button" class="btn btn-primary btn-sm" onclick="moveSongUp(this)">↑</button>
+                        <button type="button" class="btn btn-primary btn-sm" onclick="moveSongDown(this)">↓</button>
+                    </li>
+                }
+            </ul>
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Create Mix</button>
+</form>
+
+@section Scripts {
+    <script>
+        function addSongToMix(songId, songTitle) {
+            const mixSongsList = document.getElementById('mixSongsList');
+            const songCount = mixSongsList.childElementCount;
+
+            const li = document.createElement('li');
+            li.className = 'list-group-item';
+            li.innerHTML = `
+                        ${songTitle}
+                        <input type="hidden" name="MixSongs[${songCount}].SongId" value="${songId}" />
+                        <input type="hidden" name="MixSongs[${songCount}].Order" value="${songCount}" />
+                        <div class="form-group">
+                            <label>Start Time</label>
+                            <input type="number" class="form-control" name="MixSongs[${songCount}].StartTime" value="0" />
+                        </div>
+                        <div class="form-group">
+                            <label>End Time</label>
+                            <input type="number" class="form-control" name="MixSongs[${songCount}].EndTime" value="0" />
+                        </div>
+                        <button type="button" class="btn btn-danger btn-sm" onclick="removeSongFromMix(this)">Remove</button>
+                        <button type="button" class="btn btn-primary btn-sm" onclick="moveSongUp(this)">↑</button>
+                        <button type="button" class="btn btn-primary btn-sm" onclick="moveSongDown(this)">↓</button>
+                    `;
+            mixSongsList.appendChild(li);
+        }
+
+        function removeSongFromMix(button) {
+            const li = button.parentElement;
+            li.remove();
+            updateMixSongOrder();
+        }
+
+        function moveSongUp(button) {
+            const li = button.parentElement;
+            const prevLi = li.previousElementSibling;
+            if (prevLi) {
+                li.parentElement.insertBefore(li, prevLi);
+            }
+            updateMixSongOrder();
+        }
+
+        function moveSongDown(button) {
+            const li = button.parentElement;
+            const nextLi = li.nextElementSibling;
+            if (nextLi) {
+                li.parentElement.insertBefore(nextLi, li);
+            }
+            updateMixSongOrder();
+        }
+
+        function updateMixSongOrder() {
+            const mixSongsList = document.getElementById('mixSongsList');
+            const mixSongs = mixSongsList.children;
+            for (let i = 0; i < mixSongs.length; i++) {
+                const orderInput = mixSongs[i].querySelector('input[name*=".Order"]');
+                orderInput.value = i;
+            }
+        }
+    </script>
+}
