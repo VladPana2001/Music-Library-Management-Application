@@ -47,15 +47,17 @@
                             <label>Trim Song</label>
                             <div id="slider-@i" data-max="@maxLength"></div>
                             <label>Start:</label>
-                            <input type="text" class="form-control d-inline w-auto" name="MixSongs[@i].StartTime" id="start-input-@i" value="@mixSong.StartTime" />
+                            <input type="number" class="form-control d-inline w-auto" name="MixSongs[@i].StartTime" id="start-input-@i" value="@mixSong.StartTime" />
                             <label>End:</label>
-                            <input type="text" class="form-control d-inline w-auto" name="MixSongs[@i].EndTime" id="end-input-@i" value="@mixSong.EndTime" />
+                            <input type="number" class="form-control d-inline w-auto" name="MixSongs[@i].EndTime" id="end-input-@i" value="@mixSong.EndTime" />
                         </div>
                         <div class="form-group">
-                            <label>Fade In Duration:</label>
-                            <input type="text" class="form-control d-inline w-auto" name="MixSongs[@i].FadeInDuration" value="@mixSong.FadeInDuration" />
-                            <label>Fade Out Duration:</label>
-                            <input type="text" class="form-control d-inline w-auto" name="MixSongs[@i].FadeOutDuration" value="@mixSong.FadeOutDuration" />
+                            <label>Fade In Duration (seconds):</label>
+                            <input type="number" class="form-control d-inline w-auto" name="MixSongs[@i].FadeInDuration" value="@mixSong.FadeInDuration" />
+                        </div>
+                        <div class="form-group">
+                            <label>Fade Out Duration (seconds):</label>
+                            <input type="number" class="form-control d-inline w-auto" name="MixSongs[@i].FadeOutDuration" value="@mixSong.FadeOutDuration" />
                         </div>
                         <button type="button" class="btn btn-danger btn-sm" onclick="removeSongFromMix(this)">Remove</button>
                         <button type="button" class="btn btn-primary btn-sm" onclick="moveSongUp(this)">↑</button>
@@ -78,27 +80,29 @@
             const li = document.createElement('li');
             li.className = 'list-group-item';
             li.innerHTML = `
-                        ${songTitle}
-                        <input type="hidden" name="MixSongs[${songCount}].SongId" value="${songId}" />
-                        <input type="hidden" name="MixSongs[${songCount}].Order" value="${songCount}" />
-                        <div class="form-group">
-                            <label>Trim Song</label>
-                            <div id="slider-${songCount}" data-max="${songLength}"></div>
-                            <label>Start:</label>
-                            <input type="text" class="form-control d-inline w-auto" name="MixSongs[${songCount}].StartTime" id="start-input-${songCount}" value="0" />
-                            <label>End:</label>
-                            <input type="text" class="form-control d-inline w-auto" name="MixSongs[${songCount}].EndTime" id="end-input-${songCount}" value="${songLength}" />
-                        </div>
-                        <div class="form-group">
-                            <label>Fade In Duration:</label>
-                            <input type="text" class="form-control d-inline w-auto" name="MixSongs[${songCount}].FadeInDuration" value="0" />
-                            <label>Fade Out Duration:</label>
-                            <input type="text" class="form-control d-inline w-auto" name="MixSongs[${songCount}].FadeOutDuration" value="0" />
-                        </div>
-                        <button type="button" class="btn btn-danger btn-sm" onclick="removeSongFromMix(this)">Remove</button>
-                        <button type="button" class="btn btn-primary btn-sm" onclick="moveSongUp(this)">↑</button>
-                        <button type="button" class="btn btn-primary btn-sm" onclick="moveSongDown(this)">↓</button>
-                    `;
+                                ${songTitle}
+                                <input type="hidden" name="MixSongs[${songCount}].SongId" value="${songId}" />
+                                <input type="hidden" name="MixSongs[${songCount}].Order" value="${songCount}" />
+                                <div class="form-group">
+                                    <label>Trim Song</label>
+                                    <div id="slider-${songCount}" data-max="${songLength}"></div>
+                                    <label>Start:</label>
+                                    <input type="text" class="form-control d-inline w-auto" name="MixSongs[${songCount}].StartTime" id="start-input-${songCount}" value="0" />
+                                    <label>End:</label>
+                                    <input type="text" class="form-control d-inline w-auto" name="MixSongs[${songCount}].EndTime" id="end-input-${songCount}" value="${songLength}" />
+                                </div>
+                                <div class="form-group">
+                                    <label>Fade In Duration (seconds):</label>
+                                    <input type="number" class="form-control d-inline w-auto" name="MixSongs[${songCount}].FadeInDuration" value="0" />
+                                </div>
+                                <div class="form-group">
+                                    <label>Fade Out Duration (seconds):</label>
+                                    <input type="number" class="form-control d-inline w-auto" name="MixSongs[${songCount}].FadeOutDuration" value="0" />
+                                </div>
+                                <button type="button" class="btn btn-danger btn-sm" onclick="removeSongFromMix(this)">Remove</button>
+                                <button type="button" class="btn btn-primary btn-sm" onclick="moveSongUp(this)">↑</button>
+                                <button type="button" class="btn btn-primary btn-sm" onclick="moveSongDown(this)">↓</button>
+                            `;
             mixSongsList.appendChild(li);
             initializeSlider(songCount, songLength);
         }
@@ -152,9 +156,9 @@
 
             slider.noUiSlider.on('update', function (values, handle) {
                 if (handle === 0) {
-                    startTimeInput.value = values[0];
+                    startTimeInput.value = Math.floor(values[0]);
                 } else {
-                    endTimeInput.value = values[1];
+                    endTimeInput.value = Math.floor(values[1]);
                 }
             });
 
