@@ -29,60 +29,70 @@ namespace Music_Library_Management_Application.Services
 
         public async Task<byte[]> GenerateMixAsync(Mix mix, string userId)
         {
-            var sortedSongs = mix.Songs.OrderBy(s => s.Order).ToList();
-            var outputFormat = new WaveFormat(44100, 2); // 44.1 kHz, stereo
+            var sortedSongs = mix.Songs.OrderBy(s => s.StartPosition).ToList();
+            var outputFormat = WaveFormat.CreateIeeeFloatWaveFormat(44100, 2); // 44.1 kHz, stereo
+            var sampleProviders = new List<ISampleProvider>();
+            var readers = new List<Mp3FileReader>(); // To keep the readers alive
 
-            using (var memoryStream = new MemoryStream())
+            try
             {
-                using (var waveFileWriter = new WaveFileWriter(memoryStream, outputFormat))
+                foreach (var mixSong in sortedSongs)
                 {
-                    foreach (var mixSong in sortedSongs)
+                    var song = _repoWrapper.Songs.GetById(mixSong.SongId);
+                    if (song == null || song.UserId != userId)
                     {
-                        var song = _repoWrapper.Songs.GetById(mixSong.SongId);
-                        if (song == null || song.UserId != userId)
-                        {
-                            continue;
-                        }
-
-                        using (var mp3Reader = new Mp3FileReader(new MemoryStream(song.SongFile)))
-                        {
-                            // Trim the song
-                            mp3Reader.CurrentTime = TimeSpan.FromSeconds(mixSong.StartTime);
-                            var endTime = mixSong.EndTime > 0 ? TimeSpan.FromSeconds(mixSong.EndTime) : mp3Reader.TotalTime;
-
-                            // Apply fade-in and fade-out
-                            var sampleProvider = mp3Reader.ToSampleProvider();
-                            var fadeInOutProvider = new FadeInOutSampleProvider(sampleProvider, true);
-                            fadeInOutProvider.BeginFadeIn(mixSong.FadeInDuration * 1000); // Convert seconds to milliseconds
-
-                            // Flag to ensure fade-out is only called once
-                            bool fadeOutStarted = false;
-
-                            // Resample if necessary
-                            using (var resampler = new MediaFoundationResampler(fadeInOutProvider.ToWaveProvider(), outputFormat))
-                            {
-                                resampler.ResamplerQuality = 60; // Quality of the conversion
-                                var buffer = new byte[1024];
-                                while (mp3Reader.CurrentTime <= endTime)
-                                {
-                                    if (!fadeOutStarted && mp3Reader.CurrentTime.TotalSeconds >= endTime.TotalSeconds - mixSong.FadeOutDuration)
-                                    {
-                                        fadeInOutProvider.BeginFadeOut(mixSong.FadeOutDuration * 1000); // Start fade-out
-                                        fadeOutStarted = true;
-                                    }
-
-                                    
-                                    var bytesRead = resampler.Read(buffer, 0, buffer.Length);
-                                    if (bytesRead == 0) break;
-
-                                    waveFileWriter.Write(buffer, 0, bytesRead);
-                                }
-                            }
-                        }
+                        continue;
                     }
+
+                    var mp3Reader = new Mp3FileReader(new MemoryStream(song.SongFile));
+                    readers.Add(mp3Reader); // Keep the reader alive
+
+                    var sampleProvider = mp3Reader.ToSampleProvider();
+
+                    // Apply start and end offsets and delay by StartPosition
+                    var offsetSampleProvider = new OffsetSampleProvider(sampleProvider)
+                    {
+                        SkipOver = TimeSpan.FromSeconds(mixSong.StartTime),
+                        Take = TimeSpan.FromSeconds(mixSong.EndTime - mixSong.StartTime),
+                        DelayBy = TimeSpan.FromSeconds(mixSong.StartPosition)
+                    };
+
+                    // Apply fade-out
+                    //var fadeOutProvider = new FadeInOutSampleProvider(offsetSampleProvider, true);
+                    //fadeOutProvider.BeginFadeOut(mixSong.FadeOutDuration * 1000); // Convert seconds to milliseconds
+
+                    // Resample if necessary to match output format
+                    var resampler = new WdlResamplingSampleProvider(offsetSampleProvider, outputFormat.SampleRate);
+
+                    // Add the resampled provider to the list of sample providers
+                    sampleProviders.Add(resampler);
                 }
 
-                return memoryStream.ToArray();
+                // Create the mixer with the array of sample providers
+                var mixer = new MixingSampleProvider(sampleProviders);
+
+                using (var memoryStream = new MemoryStream())
+                {
+                    using (var waveFileWriter = new WaveFileWriter(memoryStream, outputFormat))
+                    {
+                        var buffer = new float[1024];
+                        int samplesRead;
+                        while ((samplesRead = mixer.Read(buffer, 0, buffer.Length)) > 0)
+                        {
+                            waveFileWriter.WriteSamples(buffer, 0, samplesRead);
+                        }
+                    }
+
+                    return memoryStream.ToArray();
+                }
+            }
+            finally
+            {
+                // Dispose readers after mixing
+                foreach (var reader in readers)
+                {
+                    reader.Dispose();
+                }
             }
         }
     }

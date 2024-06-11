@@ -59,6 +59,10 @@
                             <label>Fade Out Duration (seconds):</label>
                             <input type="number" class="form-control d-inline w-auto" name="MixSongs[@i].FadeOutDuration" value="@mixSong.FadeOutDuration" />
                         </div>
+                        <div class="form-group">
+                            <label>Start Position (seconds):</label> 
+                            <input type="number" class="form-control d-inline w-auto" name="MixSongs[@i].StartPosition" value="@mixSong.StartPosition" />
+                        </div>
                         <button type="button" class="btn btn-danger btn-sm" onclick="removeSongFromMix(this)">Remove</button>
                         <button type="button" class="btn btn-primary btn-sm" onclick="moveSongUp(this)">↑</button>
                         <button type="button" class="btn btn-primary btn-sm" onclick="moveSongDown(this)">↓</button>
@@ -98,6 +102,10 @@
                                 <div class="form-group">
                                     <label>Fade Out Duration (seconds):</label>
                                     <input type="number" class="form-control d-inline w-auto" name="MixSongs[${songCount}].FadeOutDuration" value="0" />
+                                </div>
+                                <div class="form-group">
+                                    <label>Start Position (seconds):</label> <!-- New input for StartPosition -->
+                                    <input type="number" class="form-control d-inline w-auto" name="MixSongs[${songCount}].StartPosition" value="0" />
                                 </div>
                                 <button type="button" class="btn btn-danger btn-sm" onclick="removeSongFromMix(this)">Remove</button>
                                 <button type="button" class="btn btn-primary btn-sm" onclick="moveSongUp(this)">↑</button>
