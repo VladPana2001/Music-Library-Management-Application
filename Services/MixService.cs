@@ -62,13 +62,15 @@ namespace Music_Library_Management_Application.Services
                     int fadeInDurationMs = (int)(mixSong.FadeInDuration * 1000);
                     int fadeOutDurationMs = (int)(mixSong.FadeOutDuration * 1000);
                     int totalDurationMs = (int)(mixSong.EndTime - mixSong.StartTime + mixSong.StartPosition) * 1000;
+                    int startDurationMs = (int)(mixSong.StartPosition * 1000);
 
                     // Create the fade-in provider
                     var fadeInProvider = new CustomFadeInOutSampleProvider(
                         offsetSampleProvider,
                         fadeInDurationMs,    // Fade-in duration
                         0,                   // No fade-out duration here
-                        totalDurationMs      // Total duration for the entire process
+                        totalDurationMs,      // Total duration for the entire process
+                        startDurationMs
                     );
 
                     // Create the fade-out provider
@@ -76,7 +78,8 @@ namespace Music_Library_Management_Application.Services
                         fadeInProvider,
                         0,                   // No fade-in duration here
                         fadeOutDurationMs,   // Fade-out duration
-                        totalDurationMs      // Total duration for the entire process
+                        totalDurationMs,      // Total duration for the entire process
+                        startDurationMs
                     );
 
                     // Resample if necessary to match output format
