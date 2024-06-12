@@ -1,6 +1,8 @@
 ﻿using Music_Library_Management_Application.Data;
+using Music_Library_Management_Application.Models;
 using Music_Library_Management_Application.Models.DbModels;
 using Music_Library_Management_Application.Repositories.Interfaces;
+using NAudio.Mixer;
 
 namespace Music_Library_Management_Application.Repositories
 {
@@ -10,6 +12,8 @@ namespace Music_Library_Management_Application.Repositories
         private ISongRepository _songs;
         private IPlaylistRepository _playlists;
         private ISongPlaylistRepository _songPlaylists;
+        private IMixRepository _mixes;
+        private IMixSongRepository _mixSongs;
 
         public RepositoryWrapper(MyDbContext context)
         {
@@ -52,6 +56,32 @@ namespace Music_Library_Management_Application.Repositories
                 }
 
                 return _songPlaylists;
+            }
+        }
+
+        public IMixRepository Mixes
+        {
+            get
+            {
+                if (_mixes == null)
+                {
+                    _mixes = new MixRepository(_context);
+                }
+
+                return _mixes;
+            }
+        }
+
+        public IMixSongRepository MixSongs
+        {
+            get
+            {
+                if (_mixSongs == null)
+                {
+                    _mixSongs = new MixSongRepository(_context);
+                }
+
+                return _mixSongs;
             }
         }
     }

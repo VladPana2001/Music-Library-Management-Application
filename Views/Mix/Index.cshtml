@@ -1,0 +1,37 @@
+﻿@model IEnumerable<Music_Library_Management_Application.Models.DbModels.MixDb>
+
+@{
+    ViewData["Title"] = "Your Mixes";
+}
+
+<h1>Your Mixes</h1>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Description</th>
+            <th>Limiter Threshold</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var mix in Model)
+        {
+            <tr>
+                <td>@mix.Title</td>
+                <td>@mix.Description</td>
+                <td>@mix.LimiterThreshold</td>
+                <td>
+                    <a href="@Url.Action("Edit", "Mix", new { id = mix.Id })" class="btn btn-warning">Edit</a>
+                    <a href="@Url.Action("Details", "Mix", new { id = mix.Id })" class="btn btn-info">Details</a>
+                    <form asp-action="Delete" asp-controller="Mix" asp-route-id="@mix.Id" method="post" style="display:inline;">
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a href="@Url.Action("Create", "Mix")" class="btn btn-primary">Create New Mix</a>
