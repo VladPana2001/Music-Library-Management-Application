@@ -7,9 +7,11 @@
 <h1>Create Mix</h1>
 
 <form asp-action="Create" method="post" id="mixForm">
+    <span id="mixNameError" class="text-danger"></span>
+    <span id="mixSongsError" class="text-danger"></span>
     <div class="form-group">
         <label asp-for="MixName" class="control-label"></label>
-        <input asp-for="MixName" class="form-control" />
+        <input asp-for="MixName" class="form-control" id="mixName" />
         <span asp-validation-for="MixName" class="text-danger"></span>
     </div>
     <div class="form-group">
@@ -345,6 +347,32 @@
             }
         }
 
+        function validateForm(event) {
+            let isValid = true;
+            const mixName = document.getElementById('mixName').value;
+            const mixSongsGrid = document.getElementById('mixSongsGrid');
+
+            if (!mixName) {
+                document.getElementById('mixNameError').innerText = "The Mix Name is required.";
+                isValid = false;
+            } else {
+                document.getElementById('mixNameError').innerText = "";
+            }
+
+            if (mixSongsGrid.childElementCount === 0) {
+                document.getElementById('mixSongsError').innerText = "At least one song must be added to the mix.";
+                isValid = false;
+            } else {
+                document.getElementById('mixSongsError').innerText = "";
+            }
+
+            if (!isValid) {
+                event.preventDefault();
+            }
+
+            return isValid;
+        }
+
         document.addEventListener('DOMContentLoaded', function () {
             const sliders = document.querySelectorAll('[id^="slider-"]');
             sliders.forEach((slider, index) => {
@@ -384,6 +412,12 @@
             const form = document.getElementById('mixForm');
             form.addEventListener('keydown', function (event) {
                 if (event.key === 'Enter' && event.target.tagName === 'INPUT') {
+                    event.preventDefault();
+                }
+            });
+
+            document.getElementById('mixForm').addEventListener('submit', function (event) {
+                if (!validateForm(event)) {
                     event.preventDefault();
                 }
             });
