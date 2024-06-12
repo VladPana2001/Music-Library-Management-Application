@@ -2,6 +2,7 @@
 using Music_Library_Management_Application.Models.DbModels;
 using Music_Library_Management_Application.Repositories.Interfaces;
 using Music_Library_Management_Application.Services.Interfaces;
+using Music_Library_Management_Application.Utilities;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
 using System.Drawing.Printing;
@@ -45,7 +46,7 @@ namespace Music_Library_Management_Application.Services
                     }
 
                     var mp3Reader = new Mp3FileReader(new MemoryStream(song.SongFile));
-                    readers.Add(mp3Reader); // Keep the reader alive
+                    readers.Add(mp3Reader);
 
                     var sampleProvider = mp3Reader.ToSampleProvider();
 
@@ -57,12 +58,29 @@ namespace Music_Library_Management_Application.Services
                         DelayBy = TimeSpan.FromSeconds(mixSong.StartPosition)
                     };
 
-                    // Apply fade-out
-                    //var fadeOutProvider = new FadeInOutSampleProvider(offsetSampleProvider, true);
-                    //fadeOutProvider.BeginFadeOut(mixSong.FadeOutDuration * 1000); // Convert seconds to milliseconds
+
+                    //fade in
+
+                    int positionMs = (int)(mixSong.StartPosition)* 1000;
+                    var fadeInProvider = new CustomFadeInOutSampleProvider(
+                        offsetSampleProvider,
+                        (int)(mixSong.FadeInDuration * 1000),
+                        (int)(mixSong.FadeOutDuration * 1000),
+                        positionMs
+                    );
+
+                    //fade out
+
+                    positionMs = (int)(mixSong.EndTime - mixSong.StartTime + mixSong.StartPosition) * 1000;
+                    var fadeOutProvider = new CustomFadeInOutSampleProvider(
+                        fadeInProvider,
+                        (int)(mixSong.FadeInDuration * 1000),
+                        (int)(mixSong.FadeOutDuration * 1000),
+                        positionMs
+                    );
 
                     // Resample if necessary to match output format
-                    var resampler = new WdlResamplingSampleProvider(offsetSampleProvider, outputFormat.SampleRate);
+                    var resampler = new WdlResamplingSampleProvider(fadeOutProvider, outputFormat.SampleRate);
 
                     // Add the resampled provider to the list of sample providers
                     sampleProviders.Add(resampler);
@@ -95,5 +113,6 @@ namespace Music_Library_Management_Application.Services
                 }
             }
         }
+
     }
 }
