@@ -95,8 +95,19 @@
 
 @section Styles {
     <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            overflow: hidden; /* Prevent the main page from scrolling */
+        }
+
+        body{
+            max-height: 100vh;
+            overflow-y: auto;
+        }
+
         .grid-container {
-            max-height: 400px;
+            max-height: 520px;
             width: 100%;
             overflow: auto;
             border: 1px solid #ccc;
