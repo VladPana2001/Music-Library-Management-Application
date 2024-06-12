@@ -40,131 +40,200 @@
         </div>
         <div class="col-md-6">
             <h3>Mix Songs</h3>
-            <ul class="list-group" id="mixSongsList">
-                @for (int i = 0; i < Model.MixSongs.Count; i++)
-                {
-                    var mixSong = Model.MixSongs[i];
-                    var songLength = Model.AllSongs.FirstOrDefault(s => s.Id == mixSong.SongId)?.SongLenght ?? "0";
-                    var maxLength = Model.ConvertToSeconds(songLength);
-                    <li class="list-group-item">
-                        @mixSong.Title
-                        <input type="hidden" name="MixSongs[@i].SongId" value="@mixSong.SongId" />
-                        <input type="hidden" name="MixSongs[@i].Order" value="@i" />
-                        <div class="form-group">
-                            <label>Trim Song</label>
-                            <div id="slider-@i" data-max="@maxLength"></div>
-                            <label>Start:</label>
-                            <input type="number" class="form-control d-inline w-auto" name="MixSongs[@i].StartTime" id="start-input-@i" value="@mixSong.StartTime" />
-                            <label>End:</label>
-                            <input type="number" class="form-control d-inline w-auto" name="MixSongs[@i].EndTime" id="end-input-@i" value="@mixSong.EndTime" />
+            <div class="grid-container">
+                <div class="song-grid" id="mixSongsGrid">
+                    @for (int i = 0; i < Model.MixSongs.Count; i++)
+                    {
+                        var mixSong = Model.MixSongs[i];
+                        var songLength = Model.AllSongs.FirstOrDefault(s => s.Id == mixSong.SongId)?.SongLenght ?? "0";
+                        var maxLength = Model.ConvertToSeconds(songLength);
+                        <div class="song-card" style="grid-column: 1; grid-row: @(i + 1);" data-song-id="@mixSong.SongId" data-start-position="@mixSong.StartPosition" data-row="@i + 1" data-column="1">
+                            <h5>@mixSong.Title</h5>
+                            <input type="hidden" name="MixSongs[@i].SongId" value="@mixSong.SongId" />
+                            <input type="hidden" name="MixSongs[@i].Row" value="@i + 1" />
+                            <input type="hidden" name="MixSongs[@i].Column" value="1" />
+                            <div class="form-group">
+                                <label>Trim Song</label>
+                                <div id="slider-@i" data-max="@maxLength"></div>
+                                <label>Start:</label>
+                                <input type="number" class="form-control d-inline w-auto" name="MixSongs[@i].StartTime" id="start-input-@i" value="@mixSong.StartTime" />
+                                <label>End:</label>
+                                <input type="number" class="form-control d-inline w-auto" name="MixSongs[@i].EndTime" id="end-input-@i" value="@mixSong.EndTime" />
+                            </div>
+                            <div class="form-group">
+                                <label>Fade In Duration (seconds):</label>
+                                <input type="number" class="form-control d-inline w-auto" name="MixSongs[@i].FadeInDuration" value="@mixSong.FadeInDuration" />
+                            </div>
+                            <div class="form-group">
+                                <label>Fade Out Duration (seconds):</label>
+                                <input type="number" class="form-control d-inline w-auto" name="MixSongs[@i].FadeOutDuration" value="@mixSong.FadeOutDuration" />
+                            </div>
+                            <div class="form-group">
+                                <label>Start Position (seconds):</label>
+                                <input type="number" class="form-control d-inline w-auto" name="MixSongs[@i].StartPosition" value="@mixSong.StartPosition" onblur="updateGridPositions()" onkeydown="handleKeyDown(event, this)" />
+                            </div>
+                            <div class="form-group">
+                                <label>Volume:</label>
+                                <div id="volume-slider-@i" class="mb-2"></div>
+                                <input type="number" step="0.1" min="0" max="1" class="form-control visually-hidden" name="MixSongs[@i].Volume" id="volume-input-@i" value="@mixSong.Volume" readonly />
+                                <span id="volume-value-@i" class="font-weight-bold"></span>
+                            </div>
+                            <div class="song-actions">
+                                <button type="button" class="btn btn-danger btn-sm" onclick="removeSongFromMix(this)">Remove</button>
+                                <button type="button" class="btn btn-primary btn-sm" onclick="moveSongUp(this)">↑</button>
+                                <button type="button" class="btn btn-primary btn-sm" onclick="moveSongDown(this)">↓</button>
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label>Fade In Duration (seconds):</label>
-                            <input type="number" class="form-control d-inline w-auto" name="MixSongs[@i].FadeInDuration" value="@mixSong.FadeInDuration" />
-                        </div>
-                        <div class="form-group">
-                            <label>Fade Out Duration (seconds):</label>
-                            <input type="number" class="form-control d-inline w-auto" name="MixSongs[@i].FadeOutDuration" value="@mixSong.FadeOutDuration" />
-                        </div>
-                        <div class="form-group">
-                            <label>Start Position (seconds):</label>
-                            <input type="number" class="form-control d-inline w-auto" name="MixSongs[@i].StartPosition" value="@mixSong.StartPosition" />
-                        </div>
-                        <div class="form-group">
-                            <label>Volume:</label>
-                            <div id="volume-slider-@i" class="mb-2"></div>
-                            <input type="number" step="0.1" min="0" max="1" class="form-control d-none" name="MixSongs[@i].Volume" id="volume-input-@i" value="@mixSong.Volume" />
-                            <span id="volume-value-@i" class="font-weight-bold"></span>
-                        </div>
-                        <button type="button" class="btn btn-danger btn-sm" onclick="removeSongFromMix(this)">Remove</button>
-                        <button type="button" class="btn btn-primary btn-sm" onclick="moveSongUp(this)">↑</button>
-                        <button type="button" class="btn btn-primary btn-sm" onclick="moveSongDown(this)">↓</button>
-                    </li>
-                }
-            </ul>
+                    }
+                </div>
+            </div>
         </div>
     </div>
 
     <button type="submit" class="btn btn-primary">Create Mix</button>
 </form>
 
+@section Styles {
+    <style>
+        .grid-container {
+            max-height: 400px;
+            width: 100%;
+            overflow: auto;
+            border: 1px solid #ccc;
+            padding: 10px;
+        }
+
+        .song-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            ggrid-auto-flow: column;
+            gap: 10px;
+        }
+
+        .song-card {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 5px;
+            min-width: 250px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .visually-hidden {
+            position: absolute !important;
+            width: 1px;
+            height: 1px;
+            margin: -1px;
+            padding: 0;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            border: 0;
+        }
+
+        .song-actions {
+            margin-top: 10px;
+        }
+
+    </style>
+}
+
 @section Scripts {
     <script>
         function addSongToMix(songId, songTitle, songLength) {
-            const mixSongsList = document.getElementById('mixSongsList');
-            const songCount = mixSongsList.childElementCount;
+            const mixSongsGrid = document.getElementById('mixSongsGrid');
+            const songCount = mixSongsGrid.childElementCount + 1;
 
-            const li = document.createElement('li');
-            li.className = 'list-group-item';
-            li.innerHTML = `
-                                        ${songTitle}
-                                        <input type="hidden" name="MixSongs[${songCount}].SongId" value="${songId}" />
-                                        <input type="hidden" name="MixSongs[${songCount}].Order" value="${songCount}" />
+            const div = document.createElement('div');
+            div.className = 'song-card';
+            div.style.gridColumn = '1';
+            div.style.gridRow = songCount;
+            div.dataset.songId = songId;
+            div.dataset.startPosition = 0;
+            div.dataset.row = songCount;
+            div.dataset.column = 1;
+            div.innerHTML = `
+                                        <h5>${songTitle}</h5>
+                                        <input type="hidden" name="MixSongs[${songCount - 1}].SongId" value="${songId}" />
+                                        <input type="hidden" name="MixSongs[${songCount - 1}].Row" value="${songCount}" />
+                                        <input type="hidden" name="MixSongs[${songCount - 1}].Column" value="1" />
                                         <div class="form-group">
                                             <label>Trim Song</label>
-                                            <div id="slider-${songCount}" data-max="${songLength}"></div>
+                                            <div id="slider-${songCount - 1}" data-max="${songLength}"></div>
                                             <label>Start:</label>
-                                            <input type="text" class="form-control d-inline w-auto" name="MixSongs[${songCount}].StartTime" id="start-input-${songCount}" value="0" />
+                                            <input type="number" class="form-control d-inline w-auto" name="MixSongs[${songCount - 1}].StartTime" id="start-input-${songCount - 1}" value="0" />
                                             <label>End:</label>
-                                            <input type="text" class="form-control d-inline w-auto" name="MixSongs[${songCount}].EndTime" id="end-input-${songCount}" value="${songLength}" />
+                                            <input type="number" class="form-control d-inline w-auto" name="MixSongs[${songCount - 1}].EndTime" id="end-input-${songCount - 1}" value="${songLength}" />
                                         </div>
                                         <div class="form-group">
                                             <label>Fade In Duration (seconds):</label>
-                                            <input type="number" class="form-control d-inline w-auto" name="MixSongs[${songCount}].FadeInDuration" value="0" />
+                                            <input type="number" class="form-control d-inline w-auto" name="MixSongs[${songCount - 1}].FadeInDuration" value="0" />
                                         </div>
                                         <div class="form-group">
                                             <label>Fade Out Duration (seconds):</label>
-                                            <input type="number" class="form-control d-inline w-auto" name="MixSongs[${songCount}].FadeOutDuration" value="0" />
+                                            <input type="number" class="form-control d-inline w-auto" name="MixSongs[${songCount - 1}].FadeOutDuration" value="0" />
                                         </div>
                                         <div class="form-group">
                                             <label>Start Position (seconds):</label>
-                                            <input type="number" class="form-control d-inline w-auto" name="MixSongs[${songCount}].StartPosition" value="0" />
+                                            <input type="number" class="form-control d-inline w-auto" name="MixSongs[${songCount - 1}].StartPosition" value="0" onblur="updateGridPositions()" onkeydown="handleKeyDown(event, this)" />
                                         </div>
                                         <div class="form-group">
                                             <label>Volume:</label>
-                                            <div id="volume-slider-${songCount}" class="mb-2"></div>
-                                            <input type="number" step="0.1" min="0" max="1" class="form-control d-none" name="MixSongs[${songCount}].Volume" id="volume-input-${songCount}" value="1.0" />
-                                            <span id="volume-value-${songCount}" class="font-weight-bold"></span>
+                                            <div id="volume-slider-${songCount - 1}" class="mb-2"></div>
+                                                    <input type="number" step="0.1" min="0" max="1" class="form-control visually-hidden" name="MixSongs[${songCount - 1}].Volume" id="volume-input-${songCount - 1}" value="1.0" readonly />
+                                            <span id="volume-value-${songCount - 1}" class="font-weight-bold"></span>
                                         </div>
-                                        <button type="button" class="btn btn-danger btn-sm" onclick="removeSongFromMix(this)">Remove</button>
-                                        <button type="button" class="btn btn-primary btn-sm" onclick="moveSongUp(this)">↑</button>
-                                        <button type="button" class="btn btn-primary btn-sm" onclick="moveSongDown(this)">↓</button>
+                                        <div class="song-actions">
+                                            <button type="button" class="btn btn-danger btn-sm" onclick="removeSongFromMix(this)">Remove</button>
+                                            <button type="button" class="btn btn-primary btn-sm" onclick="moveSongUp(this)">↑</button>
+                                            <button type="button" class="btn btn-primary btn-sm" onclick="moveSongDown(this)">↓</button>
+                                        </div>
                                     `;
-            mixSongsList.appendChild(li);
-            initializeSlider(songCount, songLength);
-            initializeVolumeSlider(songCount);
+            mixSongsGrid.appendChild(div);
+            initializeSlider(songCount - 1, songLength);
+            initializeVolumeSlider(songCount - 1);
+            console.log("Added song:", songTitle);
+            updateGridPositions();
         }
 
         function removeSongFromMix(button) {
-            const li = button.parentElement;
-            li.remove();
+            const card = button.closest('.song-card');
+            card.remove();
             updateMixSongOrder();
+            console.log("Removed song");
+            updateGridPositions();
         }
 
         function moveSongUp(button) {
-            const li = button.parentElement;
-            const prevLi = li.previousElementSibling;
-            if (prevLi) {
-                li.parentElement.insertBefore(li, prevLi);
+            const card = button.closest('.song-card');
+            const currentRow = parseInt(card.dataset.row);
+            if (currentRow > 1) {
+                const prevCard = [...card.parentElement.children].find(c => parseInt(c.dataset.row) === currentRow - 1);
+                card.dataset.row = currentRow - 1;
+                prevCard.dataset.row = currentRow;
+                updateGridPositions();
+                console.log("Moved song up");
             }
-            updateMixSongOrder();
         }
 
         function moveSongDown(button) {
-            const li = button.parentElement;
-            const nextLi = li.nextElementSibling;
-            if (nextLi) {
-                li.parentElement.insertBefore(nextLi, li);
+            const card = button.closest('.song-card');
+            const currentRow = parseInt(card.dataset.row);
+            const songCount = card.parentElement.childElementCount;
+            if (currentRow < songCount) {
+                const nextCard = [...card.parentElement.children].find(c => parseInt(c.dataset.row) === currentRow + 1);
+                card.dataset.row = currentRow + 1;
+                nextCard.dataset.row = currentRow;
+                updateGridPositions();
+                console.log("Moved song down");
             }
-            updateMixSongOrder();
         }
 
         function updateMixSongOrder() {
-            const mixSongsList = document.getElementById('mixSongsList');
-            const mixSongs = mixSongsList.children;
+            const mixSongsGrid = document.getElementById('mixSongsGrid');
+            const mixSongs = mixSongsGrid.children;
             for (let i = 0; i < mixSongs.length; i++) {
-                const orderInput = mixSongs[i].querySelector('input[name*=".Order"]');
-                orderInput.value = i;
+                // Order update logic
             }
         }
 
@@ -224,6 +293,47 @@
             });
         }
 
+        function updateGridPositions() {
+            console.log("Updating grid positions");
+            const mixSongsGrid = document.getElementById('mixSongsGrid');
+            const mixSongs = Array.from(mixSongsGrid.children);
+
+            mixSongs.forEach((card, index) => {
+                const startPosition = parseFloat(card.querySelector('input[name*=".StartPosition"]').value) || 0;
+                card.dataset.startPosition = startPosition;
+            });
+
+            mixSongs.sort((a, b) => {
+                const aPos = parseFloat(a.dataset.startPosition);
+                const bPos = parseFloat(b.dataset.startPosition);
+                return aPos - bPos;
+            });
+
+            let currentColumn = 1;
+            let previousStartPosition = null;
+
+            mixSongs.forEach((card, index) => {
+                const startPosition = parseFloat(card.dataset.startPosition);
+                if (previousStartPosition !== null && startPosition !== previousStartPosition) {
+                    currentColumn++;
+                }
+                card.dataset.column = currentColumn;
+                previousStartPosition = startPosition;
+                card.style.gridColumn = currentColumn;
+                card.style.gridRow = card.dataset.row;
+                mixSongsGrid.appendChild(card);
+                console.log(`Song ${card.querySelector('h5').innerText} moved to row ${card.dataset.row}, column ${currentColumn}`);
+            });
+        }
+
+        function handleKeyDown(event, input) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                input.blur(); // Trigger blur event to update grid positions
+                console.log("Enter key pressed");
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', function () {
             const sliders = document.querySelectorAll('[id^="slider-"]');
             sliders.forEach((slider, index) => {
@@ -266,6 +376,10 @@
                     event.preventDefault();
                 }
             });
+
+            // Initial grid positions update
+            console.log("Document loaded");
+            updateGridPositions();
         });
     </script>
 }
