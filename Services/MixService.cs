@@ -50,8 +50,13 @@ namespace Music_Library_Management_Application.Services
 
                     var sampleProvider = mp3Reader.ToSampleProvider();
 
+                    var volumeProvider = new VolumeSampleProvider(sampleProvider)
+                    {
+                        Volume = (float)mixSong.Volume
+                    };
+
                     // Apply start and end offsets and delay by StartPosition
-                    var offsetSampleProvider = new OffsetSampleProvider(sampleProvider)
+                    var offsetSampleProvider = new OffsetSampleProvider(volumeProvider)
                     {
                         SkipOver = TimeSpan.FromSeconds(mixSong.StartTime),
                         Take = TimeSpan.FromSeconds(mixSong.EndTime - mixSong.StartTime),
@@ -92,13 +97,17 @@ namespace Music_Library_Management_Application.Services
                 // Create the mixer with the array of sample providers
                 var mixer = new MixingSampleProvider(sampleProviders);
 
+                float threshold = (float)mix.LimiterThreshold;
+                var limitedProvider = new LimiterSampleProvider(mixer, threshold);
+
+
                 using (var memoryStream = new MemoryStream())
                 {
                     using (var waveFileWriter = new WaveFileWriter(memoryStream, outputFormat))
                     {
                         var buffer = new float[1024];
                         int samplesRead;
-                        while ((samplesRead = mixer.Read(buffer, 0, buffer.Length)) > 0)
+                        while ((samplesRead = limitedProvider.Read(buffer, 0, buffer.Length)) > 0)
                         {
                             waveFileWriter.WriteSamples(buffer, 0, samplesRead);
                         }

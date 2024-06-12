@@ -8,6 +8,7 @@ namespace Music_Library_Management_Application.Models
         public string MixDescription { get; set; }
         public List<Song> AllSongs { get; set; }
         public List<MixSong> MixSongs { get; set; } = new List<MixSong>();
+        public double LimiterThreshold { get; set; } = 0.9;
 
         public double ConvertToSeconds(string length)
         {

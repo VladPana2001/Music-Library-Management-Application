@@ -17,6 +17,11 @@
         <textarea asp-for="MixDescription" class="form-control"></textarea>
         <span asp-validation-for="MixDescription" class="text-danger"></span>
     </div>
+    <div class="form-group">
+        <label asp-for="LimiterThreshold" class="control-label">Limiter Threshold</label>
+        <input asp-for="LimiterThreshold" class="form-control" />
+        <span asp-validation-for="LimiterThreshold" class="text-danger"></span>
+    </div>
 
     <div class="row">
         <div class="col-md-6">
@@ -63,6 +68,10 @@
                             <label>Start Position (seconds):</label> 
                             <input type="number" class="form-control d-inline w-auto" name="MixSongs[@i].StartPosition" value="@mixSong.StartPosition" />
                         </div>
+                        <div class="form-group">
+                            <label>Volume:</label>
+                            <input type="number" step="0.1" min="0" max="1" class="form-control d-inline w-auto" name="MixSongs[@i].Volume" value="@mixSong.Volume" />
+                        </div>
                         <button type="button" class="btn btn-danger btn-sm" onclick="removeSongFromMix(this)">Remove</button>
                         <button type="button" class="btn btn-primary btn-sm" onclick="moveSongUp(this)">↑</button>
                         <button type="button" class="btn btn-primary btn-sm" onclick="moveSongDown(this)">↓</button>
@@ -107,6 +116,10 @@
                                     <label>Start Position (seconds):</label> <!-- New input for StartPosition -->
                                     <input type="number" class="form-control d-inline w-auto" name="MixSongs[${songCount}].StartPosition" value="0" />
                                 </div>
+                                        <div class="form-group">
+                                            <label>Volume:</label>
+                                                    <input type="number" step="0.1" min="0" max="1" class="form-control d-inline w-auto" name="MixSongs[${songCount}].Volume" value="1.0" />
+                                        </div>
                                 <button type="button" class="btn btn-danger btn-sm" onclick="removeSongFromMix(this)">Remove</button>
                                 <button type="button" class="btn btn-primary btn-sm" onclick="moveSongUp(this)">↑</button>
                                 <button type="button" class="btn btn-primary btn-sm" onclick="moveSongDown(this)">↓</button>

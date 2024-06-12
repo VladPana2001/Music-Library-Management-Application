@@ -38,7 +38,8 @@ namespace Music_Library_Management_Application.Controllers
             {
                 Name = model.MixName,
                 Description = model.MixDescription,
-                Songs = model.MixSongs
+                Songs = model.MixSongs,
+                LimiterThreshold = model.LimiterThreshold
             };
 
             var fileBytes = await _mixService.GenerateMixAsync(mix, user.Id);
