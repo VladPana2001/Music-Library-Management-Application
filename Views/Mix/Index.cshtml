@@ -11,8 +11,8 @@
         <tr>
             <th>Title</th>
             <th>Description</th>
-            <th>Limiter Threshold</th>
             <th>Actions</th>
+            <th>Audio</th>
         </tr>
     </thead>
     <tbody>
@@ -21,13 +21,16 @@
             <tr>
                 <td>@mix.Title</td>
                 <td>@mix.Description</td>
-                <td>@mix.LimiterThreshold</td>
                 <td>
-                    <a href="@Url.Action("Edit", "Mix", new { id = mix.Id })" class="btn btn-warning">Edit</a>
                     <a href="@Url.Action("Details", "Mix", new { id = mix.Id })" class="btn btn-info">Details</a>
-                    <form asp-action="Delete" asp-controller="Mix" asp-route-id="@mix.Id" method="post" style="display:inline;">
-                        <button type="submit" class="btn btn-danger">Delete</button>
-                    </form>
+                    <a href="@Url.Action("Download", "Mix", new { id = mix.Id })" class="btn btn-success">Download</a>
+                    <a href="@Url.Action("Delete", "Mix", new { id = mix.Id })" class="btn btn-danger">Delete</a>
+                </td>
+                <td>
+                    <audio controls>
+                        <source src="@Url.Action("Stream", "Mix", new { id = mix.Id })" type="audio/mpeg">
+                        Your browser does not support the audio element.
+                    </audio>
                 </td>
             </tr>
         }

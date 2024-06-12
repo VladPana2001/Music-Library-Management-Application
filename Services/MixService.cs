@@ -1,4 +1,5 @@
-﻿using Music_Library_Management_Application.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using Music_Library_Management_Application.Models;
 using Music_Library_Management_Application.Models.DbModels;
 using Music_Library_Management_Application.Repositories.Interfaces;
 using Music_Library_Management_Application.Services.Interfaces;
@@ -35,6 +36,15 @@ namespace Music_Library_Management_Application.Services
             var sampleProviders = new List<ISampleProvider>();
             var readers = new List<Mp3FileReader>(); // To keep the readers alive
 
+            var mixDb = new MixDb
+            {
+                Title = mix.Name,
+                Description = mix.Description,
+                LimiterThreshold = mix.LimiterThreshold,
+                UserId = userId
+            };
+            var mixSongsDb = new List<MixSongDb>();
+
             try
             {
                 foreach (var mixSong in sortedSongs)
@@ -44,6 +54,18 @@ namespace Music_Library_Management_Application.Services
                     {
                         continue;
                     }
+
+                    var mixSongDb = new MixSongDb
+                    {
+                        Title = song.SongTitle,
+                        StartTime = mixSong.StartTime,
+                        EndTime = mixSong.EndTime,
+                        StartPosition = mixSong.StartPosition,
+                        FadeInDuration = mixSong.FadeInDuration,
+                        FadeOutDuration = mixSong.FadeOutDuration,
+                        Volume = mixSong.Volume
+                    };
+                    mixSongsDb.Add(mixSongDb);
 
                     var mp3Reader = new Mp3FileReader(new MemoryStream(song.SongFile));
                     readers.Add(mp3Reader);
@@ -113,8 +135,12 @@ namespace Music_Library_Management_Application.Services
                         }
                     }
 
-                    return memoryStream.ToArray();
+                    mixDb.MixFile = memoryStream.ToArray();
                 }
+
+                CreateMixRecord(mixDb, mixSongsDb);
+
+                return mixDb.MixFile;
             }
             finally
             {
@@ -124,6 +150,12 @@ namespace Music_Library_Management_Application.Services
                     reader.Dispose();
                 }
             }
+        }
+
+        public void CreateMixRecord(MixDb mixDb, List<MixSongDb> mixSongsDb)
+        {
+            mixDb.MixSongs = mixSongsDb;
+            _repoWrapper.Mixes.Add(mixDb);
         }
 
     }

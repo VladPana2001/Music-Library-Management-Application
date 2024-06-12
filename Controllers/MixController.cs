@@ -64,7 +64,101 @@ namespace Music_Library_Management_Application.Controllers
 
             var fileBytes = await _mixService.GenerateMixAsync(mix, user.Id);
 
-            return File(fileBytes, "audio/mpeg", $"{mix.Name}.mp3");
+            if (fileBytes == null)
+            {
+                return BadRequest();
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpGet]
+        public IActionResult Download(int id)
+        {
+            var mix = _repoWrapper.Mixes.GetById(id);
+            if (mix == null || mix.UserId != _userManager.GetUserId(User))
+            {
+                return NotFound();
+            }
+
+            return File(mix.MixFile, "audio/mpeg", $"{mix.Title}.mp3");
+        }
+
+
+        [HttpGet]
+        public IActionResult Details(int id)
+        {
+            var userId = _userManager.GetUserId(User);
+            var mix = _repoWrapper.Mixes.GetByIdAndUserId(id, userId);
+
+            if (mix == null)
+            {
+                return NotFound();
+            }
+
+            var mixSongs = _repoWrapper.MixSongs.Find(ms => ms.MixDbId == id).ToList();
+
+            var mixDetails = new MixDetailsViewModel
+            {
+                Id = mix.Id,
+                Title = mix.Title,
+                Description = mix.Description,
+                LimiterThreshold = mix.LimiterThreshold,
+                Songs = mixSongs
+            };
+
+            return View(mixDetails);
+        }
+
+        [HttpGet]
+        public IActionResult Delete(int id)
+        {
+            var userId = _userManager.GetUserId(User);
+            var mix = _repoWrapper.Mixes.GetByIdAndUserId(id, userId);
+
+            if (mix == null)
+            {
+                return NotFound();
+            }
+
+            var mixSongs = _repoWrapper.MixSongs.Find(ms => ms.MixDbId == id).ToList();
+
+            var mixDetails = new MixDetailsViewModel
+            {
+                Id = mix.Id,
+                Title = mix.Title,
+                Description = mix.Description,
+                LimiterThreshold = mix.LimiterThreshold,
+                Songs = mixSongs
+            };
+
+            return View(mixDetails);
+        }
+
+        [HttpPost]
+        public IActionResult DeleteConfirmed(int id)
+        {
+            var mix = _repoWrapper.Mixes.GetById(id);
+            if (mix == null || mix.UserId != _userManager.GetUserId(User))
+            {
+                return NotFound();
+            }
+
+            _repoWrapper.Mixes.Delete(mix);
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpGet]
+        public IActionResult Stream(int id)
+        {
+            var mix = _repoWrapper.Mixes.GetById(id);
+            if (mix == null || mix.UserId != _userManager.GetUserId(User))
+            {
+                return NotFound();
+            }
+
+            return File(mix.MixFile, "audio/mpeg", enableRangeProcessing: true);
         }
     }
 }
