@@ -13,6 +13,8 @@ namespace Music_Library_Management_Application.Data
         public DbSet<Song> Songs { get; set; }
         public DbSet<Playlist> Playlists { get; set; }
         public DbSet<SongPlaylist> SongPlaylists { get; set; }
+        public DbSet<MixDb> Mixes { get; set; }
+        public DbSet<MixSongDb> MixSongs { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -47,6 +49,20 @@ namespace Music_Library_Management_Application.Data
                 .WithMany(p => p.SongPlaylists)
                 .HasForeignKey(sp => sp.PlaylistId)
                 .OnDelete(DeleteBehavior.NoAction); // Enable cascade delete for playlist
+            // Configure one-to-many relationship for MixDb and MixSongDb
+            builder.Entity<MixDb>()
+                .HasMany(m => m.MixSongs)
+                .WithOne(ms => ms.MixDb)
+                .HasForeignKey(ms => ms.MixDbId)
+                .OnDelete(DeleteBehavior.Cascade); // Enable cascade delete for mix songs
+
+            // Configure one-to-many relationship for User and MixDb
+            builder.Entity<MixDb>()
+                .HasOne(m => m.User)
+                .WithMany(u => u.Mixes)
+                .HasForeignKey(m => m.UserId)
+                .OnDelete(DeleteBehavior.Cascade); // Enable cascade delete for user mixes
+
         }
     }
 }

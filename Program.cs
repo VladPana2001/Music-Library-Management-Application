@@ -52,6 +52,7 @@ builder.Services.AddScoped<IRepositoryWrapper, RepositoryWrapper>();
 
 builder.Services.AddScoped<ISongService, SongService>();
 builder.Services.AddScoped<IPlaylistService, PlaylistService>();
+builder.Services.AddScoped<IMixService, MixService>();
 
 var app = builder.Build();
 

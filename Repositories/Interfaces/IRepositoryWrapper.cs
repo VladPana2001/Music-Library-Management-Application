@@ -5,5 +5,7 @@
         ISongRepository Songs { get; }
         IPlaylistRepository Playlists { get; }
         ISongPlaylistRepository SongPlaylists{ get; }
+        IMixRepository Mixes { get; }
+        IMixSongRepository MixSongs { get; }
     }
 }

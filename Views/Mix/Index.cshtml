@@ -1,0 +1,45 @@
+﻿@model IEnumerable<Music_Library_Management_Application.Models.DbModels.MixDb>
+
+@{
+    ViewData["Title"] = "Your Mixes";
+}
+
+<h1>Your Mixes</h1>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Description</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var mix in Model)
+        {
+            <tr>
+                <td>@mix.Title</td>
+                <td>@mix.Description</td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@mix.Id" class="btn btn-info">Details</a>
+                    <a asp-action="Download" asp-route-id="@mix.Id" class="btn btn-success">Download</a>
+                    <button class="btn btn-primary play-button" data-song-url="@Url.Action("Play", new { id = mix.Id })" data-song-title="@mix.Title">Play</button>
+                    <a asp-action="Delete" asp-route-id="@mix.Id" class="btn btn-danger">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a asp-action="Create" class="btn btn-primary">Create New Mix</a>
+
+<!-- Include Music Player Partial View -->
+@Html.Partial("_MusicPlayer")
+
+@section Scripts {
+    <script src="~/js/music-player.js"></script>
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/music-player.css">
+}
