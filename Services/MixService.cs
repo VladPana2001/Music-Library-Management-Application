@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Music_Library_Management_Application.Models;
 using Music_Library_Management_Application.Models.DbModels;
 using Music_Library_Management_Application.Repositories.Interfaces;
@@ -158,5 +159,23 @@ namespace Music_Library_Management_Application.Services
             _repoWrapper.Mixes.Add(mixDb);
         }
 
+        public async Task<FileStreamResult> PlayMixAsync(int id, string userId)
+        {
+            var mix = await GetMixByIdAndUserIdAsync(id, userId);
+            if (mix == null)
+                throw new KeyNotFoundException("Mix not found.");
+
+            var fileStream = new MemoryStream(mix.MixFile);
+            var response = new FileStreamResult(fileStream, "audio/mpeg")
+            {
+                EnableRangeProcessing = true
+            };
+            return response;
+        }
+
+        public async Task<MixDb> GetMixByIdAndUserIdAsync(int id, string userId)
+        {
+            return _repoWrapper.Mixes.GetByIdAndUserId(id, userId);
+        }
     }
 }

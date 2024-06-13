@@ -1,4 +1,5 @@
-﻿using Music_Library_Management_Application.Models;
+﻿using Microsoft.AspNetCore.Mvc;
+using Music_Library_Management_Application.Models;
 using Music_Library_Management_Application.Models.DbModels;
 
 namespace Music_Library_Management_Application.Services.Interfaces
@@ -7,6 +8,8 @@ namespace Music_Library_Management_Application.Services.Interfaces
     {
         Task<MixCreateViewModel> GetMixCreateViewModelAsync(string userId);
         Task<byte[]> GenerateMixAsync(Mix mix, string userId);
-        public void CreateMixRecord(MixDb mixDb, List<MixSongDb> mixSongsDb);
+        void CreateMixRecord(MixDb mixDb, List<MixSongDb> mixSongsDb);
+        Task<FileStreamResult> PlayMixAsync(int id, string userId);
+        Task<MixDb> GetMixByIdAndUserIdAsync(int id, string userId);
     }
 }

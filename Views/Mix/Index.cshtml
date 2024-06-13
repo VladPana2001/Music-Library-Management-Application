@@ -12,7 +12,6 @@
             <th>Title</th>
             <th>Description</th>
             <th>Actions</th>
-            <th>Audio</th>
         </tr>
     </thead>
     <tbody>
@@ -22,19 +21,25 @@
                 <td>@mix.Title</td>
                 <td>@mix.Description</td>
                 <td>
-                    <a href="@Url.Action("Details", "Mix", new { id = mix.Id })" class="btn btn-info">Details</a>
-                    <a href="@Url.Action("Download", "Mix", new { id = mix.Id })" class="btn btn-success">Download</a>
-                    <a href="@Url.Action("Delete", "Mix", new { id = mix.Id })" class="btn btn-danger">Delete</a>
-                </td>
-                <td>
-                    <audio controls>
-                        <source src="@Url.Action("Stream", "Mix", new { id = mix.Id })" type="audio/mpeg">
-                        Your browser does not support the audio element.
-                    </audio>
+                    <a asp-action="Details" asp-route-id="@mix.Id" class="btn btn-info">Details</a>
+                    <a asp-action="Download" asp-route-id="@mix.Id" class="btn btn-success">Download</a>
+                    <button class="btn btn-primary play-button" data-song-url="@Url.Action("Play", new { id = mix.Id })" data-song-title="@mix.Title">Play</button>
+                    <a asp-action="Delete" asp-route-id="@mix.Id" class="btn btn-danger">Delete</a>
                 </td>
             </tr>
         }
     </tbody>
 </table>
 
-<a href="@Url.Action("Create", "Mix")" class="btn btn-primary">Create New Mix</a>
+<a asp-action="Create" class="btn btn-primary">Create New Mix</a>
+
+<!-- Include Music Player Partial View -->
+@Html.Partial("_MusicPlayer")
+
+@section Scripts {
+    <script src="~/js/music-player.js"></script>
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/music-player.css">
+}
