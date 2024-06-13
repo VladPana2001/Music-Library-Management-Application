@@ -48,6 +48,8 @@
             </div>
         </div>
 
+        <button type="submit" class="btn btn-primary mt-4">Create Mix</button>
+
         <div class="row mt-4">
             <div class="col-12">
                 <h3>Mix Songs</h3>
@@ -71,22 +73,22 @@
                                 <div class="form-group">
                                     <label>Trim Song</label>
                                     <div id="slider-@i" data-max="@maxLength"></div>
-                                    <label>Start:</label>
-                                    <input type="number" class="form-control d-inline w-auto" name="MixSongs[@i].StartTime" id="start-input-@i" value="@mixSong.StartTime" onblur="updateAudioPreview(@i)" />
-                                    <label>End:</label>
-                                    <input type="number" class="form-control d-inline w-auto" name="MixSongs[@i].EndTime" id="end-input-@i" value="@mixSong.EndTime" onblur="updateAudioPreview(@i)" />
+                                    <label>Start (seconds):</label>
+                                    <input type="number" min="0" class="form-control d-inline w-auto" name="MixSongs[@i].StartTime" id="start-input-@i" value="@mixSong.StartTime" onblur="updateAudioPreview(@i)" />
+                                    <label>End (seconds):</label>
+                                    <input type="number" min="0" class="form-control d-inline w-auto" name="MixSongs[@i].EndTime" id="end-input-@i" value="@mixSong.EndTime" onblur="updateAudioPreview(@i)" />
                                 </div>
                                 <div class="form-group">
                                     <label>Fade In Duration (seconds):</label>
-                                    <input type="number" class="form-control d-inline w-auto" name="MixSongs[@i].FadeInDuration" value="@mixSong.FadeInDuration" onblur="updateAudioPreview(@i)" />
+                                    <input type="number" min="0" class="form-control d-inline w-auto" name="MixSongs[@i].FadeInDuration" value="@mixSong.FadeInDuration" onblur="updateAudioPreview(@i)" />
                                 </div>
                                 <div class="form-group">
                                     <label>Fade Out Duration (seconds):</label>
-                                    <input type="number" class="form-control d-inline w-auto" name="MixSongs[@i].FadeOutDuration" value="@mixSong.FadeOutDuration" onblur="updateAudioPreview(@i)" />
+                                    <input type="number" min="0" class="form-control d-inline w-auto" name="MixSongs[@i].FadeOutDuration" value="@mixSong.FadeOutDuration" onblur="updateAudioPreview(@i)" />
                                 </div>
                                 <div class="form-group">
                                     <label>Start Position (seconds):</label>
-                                    <input type="number" class="form-control d-inline w-auto" name="MixSongs[@i].StartPosition" value="@mixSong.StartPosition" onblur="updateGridPositions()" onkeydown="handleKeyDown(event, this)" />
+                                    <input type="number" min="0" class="form-control d-inline w-auto" name="MixSongs[@i].StartPosition" value="@mixSong.StartPosition" onblur="updateGridPositions()" onkeydown="handleKeyDown(event, this)" />
                                 </div>
                                 <div class="form-group">
                                     <label>Volume:</label>
@@ -107,7 +109,7 @@
             </div>
         </div>
 
-        <button type="submit" class="btn btn-primary mt-4">Create Mix</button>
+        
     </form>
 </div>
 
@@ -124,7 +126,7 @@
             overflow-y: auto;
         }
 
-        .list-group{
+        .list-group {
             max-height: 300px;
             overflow: hidden;
             overflow-y: auto;
@@ -188,63 +190,48 @@
             div.dataset.row = songCount;
             div.dataset.column = 1;
             div.innerHTML = `
-                                <h5>${songTitle}</h5>
-                                <audio id="audio-preview-${songCount - 1}" controls>
-                                    <source src="" type="audio/mpeg">
-                                    Your browser does not support the audio element.
-                                </audio>
-                                <input type="hidden" name="MixSongs[${songCount - 1}].SongId" value="${songId}" />
-                                <input type="hidden" name="MixSongs[${songCount - 1}].Row" value="${songCount}" />
-                                <input type="hidden" name="MixSongs[${songCount - 1}].Column" value="1" />
-                                <div class="form-group">
-                                    <label>Trim Song</label>
-                                    <div id="slider-${songCount - 1}" data-max="${songLength}"></div>
-                                    <label>Start:</label>
-                                    <input type="number" class="form-control d-inline w-auto" name="MixSongs[${songCount - 1}].StartTime" id="start-input-${songCount - 1}" value="0" onblur="updateAudioPreview(${songCount - 1})" />
-                                    <label>End:</label>
-                                    <input type="number" class="form-control d-inline w-auto" name="MixSongs[${songCount - 1}].EndTime" id="end-input-${songCount - 1}" value="${songLength}" onblur="updateAudioPreview(${songCount - 1})" />
-                                </div>
-                                <div class="form-group">
-                                    <label>Fade In Duration (seconds):</label>
-                                    <input type="number" class="form-control d-inline w-auto" name="MixSongs[${songCount - 1}].FadeInDuration" value="0" onblur="updateAudioPreview(${songCount - 1})" />
-                                </div>
-                                <div class="form-group">
-                                    <label>Fade Out Duration (seconds):</label>
-                                    <input type="number" class="form-control d-inline w-auto" name="MixSongs[${songCount - 1}].FadeOutDuration" value="0" onblur="updateAudioPreview(${songCount - 1})" />
-                                </div>
-                                <div class="form-group">
-                                    <label>Start Position (seconds):</label>
-                                    <input type="number" class="form-control d-inline w-auto" name="MixSongs[${songCount - 1}].StartPosition" value="0" onblur="updateGridPositions()" onkeydown="handleKeyDown(event, this)" />
-                                </div>
-                                <div class="form-group">
-                                    <label>Volume:</label>
-                                    <div id="volume-slider-${songCount - 1}" class="mb-2"></div>
-                                    <input type="number" step="0.1" min="0" max="1" class="form-control visually-hidden" name="MixSongs[${songCount - 1}].Volume" id="volume-input-${songCount - 1}" value="1.0" readonly />
-                                    <span id="volume-value-${songCount - 1}" class="font-weight-bold"></span>
-                                </div>
-                                <div class="song-actions">
-                                    <button type="button" class="btn btn-danger btn-sm" onclick="removeSongFromMix(this)">Remove</button>
-                                    <button type="button" class="btn btn-primary btn-sm" onclick="moveSongUp(this)">↑</button>
-                                    <button type="button" class="btn btn-primary btn-sm" onclick="moveSongDown(this)">↓</button>
-                                    <button type="button" class="btn btn-secondary btn-sm" onclick="previewAudio(${songCount - 1})">Preview</button>
-                                </div>
-                            `;
+                                        <h5>${songTitle}</h5>
+                                        <audio id="audio-preview-${songCount - 1}" controls>
+                                            <source src="" type="audio/mpeg">
+                                            Your browser does not support the audio element.
+                                        </audio>
+                                        <input type="hidden" name="MixSongs[${songCount - 1}].SongId" value="${songId}" />
+                                        <input type="hidden" name="MixSongs[${songCount - 1}].Row" value="${songCount}" />
+                                        <input type="hidden" name="MixSongs[${songCount - 1}].Column" value="1" />
+                                        <div class="form-group">
+                                            <label>Trim Song</label>
+                                            <div id="slider-${songCount - 1}" data-max="${songLength}"></div>
+                                            <label>Start (seconds):</label>
+                                            <input type="number" min="0" class="form-control d-inline w-auto" name="MixSongs[${songCount - 1}].StartTime" id="start-input-${songCount - 1}" value="0" onblur="updateAudioPreview(${songCount - 1})" />
+                                            <label>End (seconds):</label>
+                                            <input type="number" min="0" class="form-control d-inline w-auto" name="MixSongs[${songCount - 1}].EndTime" id="end-input-${songCount - 1}" value="${songLength}" onblur="updateAudioPreview(${songCount - 1})" />
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Fade In Duration (seconds):</label>
+                                            <input type="number" min="0" class="form-control d-inline w-auto" name="MixSongs[${songCount - 1}].FadeInDuration" value="0" onblur="updateAudioPreview(${songCount - 1})" />
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Fade Out Duration (seconds):</label>
+                                            <input type="number" min="0" class="form-control d-inline w-auto" name="MixSongs[${songCount - 1}].FadeOutDuration" value="0" onblur="updateAudioPreview(${songCount - 1})" />
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Start Position (seconds):</label>
+                                            <input type="number" min="0" class="form-control d-inline w-auto" name="MixSongs[${songCount - 1}].StartPosition" value="0" onblur="updateGridPositions()" onkeydown="handleKeyDown(event, this)" />
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Volume:</label>
+                                            <div id="volume-slider-${songCount - 1}" class="mb-2"></div>
+                                            <input type="number" step="0.1" min="0" max="1" class="form-control visually-hidden" name="MixSongs[${songCount - 1}].Volume" id="volume-input-${songCount - 1}" value="1.0" readonly />
+                                            <span id="volume-value-${songCount - 1}" class="font-weight-bold"></span>
+                                        </div>
+                                        <div class="song-actions">
+                                            <button type="button" class="btn btn-danger btn-sm" onclick="removeSongFromMix(this)">Remove</button>
+                                            <button type="button" class="btn btn-primary btn-sm" onclick="moveSongUp(this)">↑</button>
+                                            <button type="button" class="btn btn-primary btn-sm" onclick="moveSongDown(this)">↓</button>
+                                            <button type="button" class="btn btn-secondary btn-sm" onclick="previewAudio(${songCount - 1})">Preview</button>
+                                        </div>
+                                    `;
             mixSongsGrid.appendChild(div);
-            initializeSlider(songCount - 1, songLength);
-            initializeVolumeSlider(songCount - 1);
-            console.log("Added song:", songTitle);
-            updateGridPositions();
-        }
-
-        function previewAudio(index) {
-            const songId = document.querySelector(`input[name="MixSongs[${index}].SongId"]`).value;
-            const startTime = parseFloat(document.getElementById(`start-input-${index}`).value) || 0;
-            const endTime = parseFloat(document.getElementById(`end-input-${index}`).value) || 0;
-            const fadeInDuration = parseFloat(document.querySelector(`input[name="MixSongs[${index}].FadeInDuration"]`).value) || 0;
-            const fadeOutDuration = parseFloat(document.querySelector(`input[name="MixSongs[${index}].FadeOutDuration"]`).value) || 0;
-            const volume = parseFloat(document.getElementById(`volume-input-${index}`).value) || 1.0;
-            const startPosition = parseFloat(document.querySelector(`input[name="MixSongs[${index}].StartPosition"]`).value) || 0;
-
             initializeSlider(songCount - 1, songLength);
             initializeVolumeSlider(songCount - 1);
             console.log("Added song:", songTitle);

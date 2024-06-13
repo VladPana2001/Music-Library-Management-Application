@@ -23,14 +23,14 @@
                     <div class="card-body">
                         <h4 class="card-title">Playlist Details</h4>
                         <div class="form-group">
-                            <label for="PlaylistTitle">Title</label>
-                            <input id="PlaylistTitle" name="Playlist.PlaylistTitle" class="form-control" />
+                            <label asp-for="Playlist.PlaylistTitle">Title</label>
+                            <input asp-for="Playlist.PlaylistTitle" class="form-control" />
                             <span asp-validation-for="Playlist.PlaylistTitle" class="text-danger"></span>
                             <div id="titleError" class="text-danger"></div>
                         </div>
                         <div class="form-group">
-                            <label for="PlaylistDescription">Description</label>
-                            <textarea id="PlaylistDescription" name="Playlist.PlaylistDescription" class="form-control" rows="3"></textarea>
+                            <label asp-for="Playlist.PlaylistDescription">Description</label>
+                            <textarea asp-for="Playlist.PlaylistDescription" class="form-control" rows="3"></textarea>
                             <span asp-validation-for="Playlist.PlaylistDescription" class="text-danger"></span>
                         </div>
                     </div>
@@ -106,17 +106,17 @@
             songDiv.classList.add("song-item", "mb-2", "p-2", "border");
             songDiv.dataset.index = selectedSongsDiv.childElementCount;
             songDiv.innerHTML = `
-                        <span><strong>Title:</strong> ${songTitle}</span><br />
-                        <span><strong>Description:</strong> ${songDescription}</span><br />
-                        <span><strong>Artist:</strong> ${songArtist}</span><br />
-                        <span><strong>Album:</strong> ${songAlbum}</span><br />
-                        <span><strong>Length:</strong> ${songLength}</span><br />
-                        <span><strong>BPM:</strong> ${songBPM}</span><br />
-                        <button type="button" class="btn btn-danger btn-sm mt-1" onclick="removeSong(this)">Remove</button>
-                        <button type="button" class="btn btn-secondary btn-sm mt-1" onclick="moveSongUp(this)">↑</button>
-                        <button type="button" class="btn btn-secondary btn-sm mt-1" onclick="moveSongDown(this)">↓</button>
-                        <input type="hidden" name="SelectedSongIds" value="${songId}" />
-                    `;
+                                <span><strong>Title:</strong> ${songTitle}</span><br />
+                                <span><strong>Description:</strong> ${songDescription}</span><br />
+                                <span><strong>Artist:</strong> ${songArtist}</span><br />
+                                <span><strong>Album:</strong> ${songAlbum}</span><br />
+                                <span><strong>Length:</strong> ${songLength}</span><br />
+                                <span><strong>BPM:</strong> ${songBPM}</span><br />
+                                <button type="button" class="btn btn-danger btn-sm mt-1" onclick="removeSong(this)">Remove</button>
+                                <button type="button" class="btn btn-secondary btn-sm mt-1" onclick="moveSongUp(this)">↑</button>
+                                <button type="button" class="btn btn-secondary btn-sm mt-1" onclick="moveSongDown(this)">↓</button>
+                                <input type="hidden" name="SelectedSongIds" value="${songId}" />
+                            `;
             selectedSongsDiv.appendChild(songDiv);
         }
 
