@@ -43,70 +43,23 @@ namespace Music_Library_Management_Application.Controllers
 
             return View(mixes);
         }
-
         [HttpGet]
-        public async Task<IActionResult> PreviewSong(int songId, double startTime, double endTime, double startPosition, double fadeInDuration, double fadeOutDuration, double volume)
+        public async Task<IActionResult> PreviewSong(int songId, double startTime, double endTime, double fadeInDuration, double fadeOutDuration, double volume)
         {
             var user = await _userManager.GetUserAsync(User);
-            var song = _repoWrapper.Songs.GetById(songId);
-            if (song == null || song.UserId != user.Id)
+            if (user == null)
             {
-                return BadRequest("Invalid song ID.");
+                return Unauthorized();
             }
 
-            using (var mp3Reader = new Mp3FileReader(new MemoryStream(song.SongFile)))
+            try
             {
-                var sampleProvider = mp3Reader.ToSampleProvider();
-
-                var volumeProvider = new VolumeSampleProvider(sampleProvider)
-                {
-                    Volume = (float)volume
-                };
-
-                var offsetSampleProvider = new OffsetSampleProvider(volumeProvider)
-                {
-                    SkipOver = TimeSpan.FromSeconds(startTime),
-                    Take = TimeSpan.FromSeconds(endTime - startTime),
-                };
-
-                int fadeInDurationMs = (int)(fadeInDuration * 1000);
-                int fadeOutDurationMs = (int)(fadeOutDuration * 1000);
-                int totalDurationMs = (int)((endTime - startTime) * 1000);
-                int startDurationMs = (int)(0 * 1000);
-
-                var fadeInProvider = new CustomFadeInOutSampleProvider(
-                    offsetSampleProvider,
-                    fadeInDurationMs,
-                    0,
-                    totalDurationMs,
-                    startDurationMs
-                );
-
-                var fadeOutProvider = new CustomFadeInOutSampleProvider(
-                    fadeInProvider,
-                    0,
-                    fadeOutDurationMs,
-                    totalDurationMs,
-                    startDurationMs
-                );
-
-                var outputFormat = WaveFormat.CreateIeeeFloatWaveFormat(44100, 2);
-                var resampler = new WdlResamplingSampleProvider(fadeOutProvider, outputFormat.SampleRate);
-
-                using (var memoryStream = new MemoryStream())
-                {
-                    using (var waveFileWriter = new WaveFileWriter(memoryStream, outputFormat))
-                    {
-                        var buffer = new float[1024];
-                        int samplesRead;
-                        while ((samplesRead = resampler.Read(buffer, 0, buffer.Length)) > 0)
-                        {
-                            waveFileWriter.WriteSamples(buffer, 0, samplesRead);
-                        }
-                    }
-
-                    return File(memoryStream.ToArray(), "audio/mpeg", "preview.mp3");
-                }
+                var previewData = await _mixService.PreviewSongAsync(songId, user.Id, startTime, endTime, fadeInDuration, fadeOutDuration, volume);
+                return File(previewData, "audio/mpeg", "preview.mp3");
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
             }
         }
 

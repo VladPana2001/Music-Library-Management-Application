@@ -11,5 +11,6 @@ namespace Music_Library_Management_Application.Services.Interfaces
         void CreateMixRecord(MixDb mixDb, List<MixSongDb> mixSongsDb);
         Task<FileStreamResult> PlayMixAsync(int id, string userId);
         Task<MixDb> GetMixByIdAndUserIdAsync(int id, string userId);
+        Task<byte[]> PreviewSongAsync(int songId, string userId, double startTime, double endTime, double fadeInDuration, double fadeOutDuration, double volume);
     }
 }
