@@ -2,19 +2,73 @@
     ViewData["Title"] = "Upload Songs";
 }
 
-<h2>Upload Songs</h2>
-
-<form asp-action="UploadSongs" method="post" enctype="multipart/form-data">
-    <div class="form-group">
-        <label for="files">Select music files to upload</label>
-        <input type="file" id="files" name="files" multiple class="form-control" />
+<div class="container mt-5">
+    <div class="text-center mb-4">
+        <a asp-controller="MusicLibrary" asp-action="Index" class="btn btn-secondary mb-4">
+            <i class="fas fa-arrow-left"></i> Back to Music Library
+        </a>
+        <h2>Upload Songs</h2>
+        <p class="lead">Select and upload your music files to add them to your library. The files will be analyzed, their metadata gathered, and BPM calculated. Note that depending on how the file is made, the analysis may not always yield accurate results.</p>
     </div>
-    <button type="submit" class="btn btn-primary">Upload</button>
-</form>
 
-@if (ViewBag.Message != null)
-{
-    <div class="alert alert-info">
-        @ViewBag.Message
-    </div>
+    <form asp-action="UploadSongs" method="post" enctype="multipart/form-data">
+        <div class="form-group">
+            <label for="files" class="form-label">Select music files to upload</label>
+            <input type="file" id="files" name="files" multiple class="form-control" />
+        </div>
+        <button type="submit" class="btn btn-primary">
+            <i class="fas fa-upload"></i> Upload
+        </button>
+    </form>
+
+    @if (ViewBag.Message != null)
+    {
+        <div class="alert alert-info mt-4">
+            @ViewBag.Message
+        </div>
+    }
+</div>
+
+@section Styles {
+    <style>
+        .container {
+            max-width: 600px;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .btn-secondary {
+            background-color: #227c9d;
+            border: none;
+            color: #fff;
+        }
+
+            .btn-secondary:hover {
+                background-color: #1e6b85;
+                color: #fff;
+            }
+
+        .btn-primary {
+            background-color: #17c3b2;
+            border: none;
+            color: #fff;
+        }
+
+            .btn-primary:hover {
+                background-color: #149b8f;
+                color: #fff;
+            }
+
+        .form-label {
+            font-weight: bold;
+        }
+
+        .lead {
+            color: #333;
+            margin-top: 10px;
+            margin-bottom: 20px;
+        }
+    </style>
 }

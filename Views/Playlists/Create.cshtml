@@ -4,66 +4,97 @@
     ViewData["Title"] = "Create Playlist";
 }
 
-<h1>Create Playlist</h1>
-
-<h4>Playlist Details</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div class="form-group">
-                <label asp-for="Playlist.PlaylistTitle" class="control-label"></label>
-                <input asp-for="Playlist.PlaylistTitle" class="form-control" />
-                <span asp-validation-for="Playlist.PlaylistTitle" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Playlist.PlaylistDescription" class="control-label"></label>
-                <input asp-for="Playlist.PlaylistDescription" class="form-control" />
-                <span asp-validation-for="Playlist.PlaylistDescription" class="text-danger"></span>
-            </div>
-
-            <h4>Songs</h4>
-            <div id="selected-songs">
-                <!-- Display selected songs here -->
-                @foreach (var songId in Model.SelectedSongIds)
-                {
-                    var song = Model.AllUserSongs.FirstOrDefault(s => s.Id == songId);
-                    if (song != null)
-                    {
-                        <div>
-                            <span>@song.SongTitle</span>
-                            <button type="button" class="btn btn-danger" onclick="removeSong(this)">Remove</button>
-                            <input type="hidden" name="SelectedSongIds" value="@song.Id" />
-                        </div>
-                    }
-                }
-            </div>
-
-            <h4>All Songs</h4>
-            <div id="all-songs">
-                @foreach (var song in Model.AllUserSongs)
-                {
-                    <div class="song-item">
-                        <span><strong>Title:</strong> @song.SongTitle</span><br />
-                        <span><strong>Description:</strong> @song.Description</span><br />
-                        <span><strong>Artist:</strong> @song.SongArtist</span><br />
-                        <span><strong>Album:</strong> @song.SongAlbum</span><br />
-                        <span><strong>Length:</strong> @song.SongLenght</span><br />
-                        <span><strong>BPM:</strong> @song.SongBPM</span><br />
-                        <button type="button" class="btn btn-primary" onclick="addSong(@song.Id, '@song.SongTitle', '@song.Description', '@song.SongArtist', '@song.SongAlbum', '@song.SongLenght', '@song.SongBPM')">Add</button>
-                    </div>
-                    <hr />
-                }
-            </div>
-
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
+<div class="container mt-5">
+    <div class="text-center mb-4">
+        <h1 class="display-4">Create Playlist</h1>
+        <p class="lead">Fill in the details to create a new playlist and add your favorite songs.</p>
     </div>
-</div>
-<div>
-    <a asp-action="Index">Back to List</a>
+    <div class="text-center mb-4">
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to List
+        </a>
+    </div>
+   
+    <form asp-action="Create" id="playlistForm">
+        <div class="row mb-4 align-content-center justify-content-center">
+            <div class="col-md-6">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body">
+                        <h4 class="card-title">Playlist Details</h4>
+                        <div class="form-group">
+                            <label for="PlaylistTitle">Title</label>
+                            <input id="PlaylistTitle" name="Playlist.PlaylistTitle" class="form-control" />
+                            <span asp-validation-for="Playlist.PlaylistTitle" class="text-danger"></span>
+                            <div id="titleError" class="text-danger"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="PlaylistDescription">Description</label>
+                            <textarea id="PlaylistDescription" name="Playlist.PlaylistDescription" class="form-control" rows="3"></textarea>
+                            <span asp-validation-for="Playlist.PlaylistDescription" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body">
+                        <h4 class="card-title">Selected Songs</h4>
+                        <div id="selected-songs" class="song-list">
+                            @for (int i = 0; i < Model.SelectedSongIds.Count; i++)
+                            {
+                                var songId = Model.SelectedSongIds[i];
+                                var song = Model.AllUserSongs.FirstOrDefault(s => s.Id == songId);
+                                if (song != null)
+                                {
+                                    <div class="song-item mb-2 p-2 border" data-index="@i">
+                                        <span><strong>Title:</strong> @song.SongTitle</span><br />
+                                        <span><strong>Description:</strong> @song.Description</span><br />
+                                        <span><strong>Artist:</strong> @song.SongArtist</span><br />
+                                        <span><strong>Album:</strong> @song.SongAlbum</span><br />
+                                        <span><strong>Length:</strong> @song.SongLenght</span><br />
+                                        <span><strong>BPM:</strong> @song.SongBPM</span><br />
+                                        <button type="button" class="btn btn-danger btn-sm mt-1" onclick="removeSong(this)">Remove</button>
+                                        <button type="button" class="btn btn-secondary btn-sm mt-1" onclick="moveSongUp(this)">↑</button>
+                                        <button type="button" class="btn btn-secondary btn-sm mt-1" onclick="moveSongDown(this)">↓</button>
+                                        <input type="hidden" name="SelectedSongIds" value="@song.Id" />
+                                    </div>
+                                }
+                            }
+                        </div>
+                        <div id="songsError" class="text-danger mt-2"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body">
+                        <h4 class="card-title">All Songs</h4>
+                        <div id="all-songs" class="song-list">
+                            @foreach (var song in Model.AllUserSongs)
+                            {
+                                <div class="song-item mb-2 p-2 border">
+                                    <span><strong>Title:</strong> @song.SongTitle</span><br />
+                                    <span><strong>Artist:</strong> @song.SongArtist</span><br />
+                                    <span><strong>Album:</strong> @song.SongAlbum</span><br />
+                                    <span><strong>Length:</strong> @song.SongLenght</span><br />
+                                    <span><strong>BPM:</strong> @song.SongBPM</span><br />
+                                    <button type="button" class="btn btn-primary btn-sm mt-1" onclick="addSong(@song.Id, '@song.SongTitle', '@song.Description', '@song.SongArtist', '@song.SongAlbum', '@song.SongLenght', '@song.SongBPM')">Add</button>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-right">
+            <input type="submit" value="Create" class="btn btn-primary" />
+        </div>
+    </form>
 </div>
 
 @section Scripts {
@@ -71,6 +102,8 @@
         function addSong(songId, songTitle, songDescription, songArtist, songAlbum, songLength, songBPM) {
             var selectedSongsDiv = document.getElementById("selected-songs");
             var songDiv = document.createElement("div");
+            songDiv.classList.add("song-item", "mb-2", "p-2", "border");
+            songDiv.dataset.index = selectedSongsDiv.childElementCount;
             songDiv.innerHTML = `
                         <span><strong>Title:</strong> ${songTitle}</span><br />
                         <span><strong>Description:</strong> ${songDescription}</span><br />
@@ -78,7 +111,9 @@
                         <span><strong>Album:</strong> ${songAlbum}</span><br />
                         <span><strong>Length:</strong> ${songLength}</span><br />
                         <span><strong>BPM:</strong> ${songBPM}</span><br />
-                        <button type="button" class="btn btn-danger" onclick="removeSong(this)">Remove</button>
+                        <button type="button" class="btn btn-danger btn-sm mt-1" onclick="removeSong(this)">Remove</button>
+                        <button type="button" class="btn btn-secondary btn-sm mt-1" onclick="moveSongUp(this)">↑</button>
+                        <button type="button" class="btn btn-secondary btn-sm mt-1" onclick="moveSongDown(this)">↓</button>
                         <input type="hidden" name="SelectedSongIds" value="${songId}" />
                     `;
             selectedSongsDiv.appendChild(songDiv);
@@ -87,6 +122,110 @@
         function removeSong(button) {
             var songDiv = button.parentElement;
             songDiv.parentElement.removeChild(songDiv);
+            updateSelectedSongIndexes();
         }
+
+        function moveSongUp(button) {
+            var songDiv = button.parentElement;
+            var index = parseInt(songDiv.dataset.index);
+            if (index > 0) {
+                var prevSongDiv = songDiv.previousElementSibling;
+                songDiv.parentElement.insertBefore(songDiv, prevSongDiv);
+                updateSelectedSongIndexes();
+            }
+        }
+
+        function moveSongDown(button) {
+            var songDiv = button.parentElement;
+            var index = parseInt(songDiv.dataset.index);
+            if (index < songDiv.parentElement.childElementCount - 1) {
+                var nextSongDiv = songDiv.nextElementSibling.nextElementSibling;
+                songDiv.parentElement.insertBefore(songDiv, nextSongDiv);
+                updateSelectedSongIndexes();
+            }
+        }
+
+        function updateSelectedSongIndexes() {
+            var selectedSongsDiv = document.getElementById("selected-songs");
+            var songItems = selectedSongsDiv.querySelectorAll(".song-item");
+            songItems.forEach((item, index) => {
+                item.dataset.index = index;
+            });
+        }
+
+        document.getElementById('playlistForm').addEventListener('submit', function (event) {
+            var playlistTitle = document.getElementById('PlaylistTitle').value.trim();
+            var selectedSongsDiv = document.getElementById('selected-songs');
+            var titleError = document.getElementById('titleError');
+            var songsError = document.getElementById('songsError');
+
+            if (!playlistTitle) {
+                event.preventDefault();
+                titleError.textContent = "Please enter a title for the playlist.";
+            } else {
+                titleError.textContent = "";
+            }
+
+            if (selectedSongsDiv.childElementCount === 0) {
+                event.preventDefault();
+                songsError.textContent = "Please add at least one song to the playlist.";
+            } else {
+                songsError.textContent = "";
+            }
+        });
     </script>
+}
+
+@section Styles {
+    <style>
+        .lead {
+            color: #333;
+            margin-top: 10px;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            color: #17c3b2;
+        }
+
+        .btn-secondary {
+            background-color: #227c9d;
+            border: none;
+            color: #fff;
+        }
+
+            .btn-secondary:hover {
+                background-color: #1e6b85;
+                color: #fff;
+            }
+
+        .btn-primary {
+            background-color: #17c3b2;
+            border: none;
+            color: #fff;
+        }
+
+            .btn-primary:hover {
+                background-color: #149b8f;
+                color: #fff;
+            }
+
+        .song-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .song-item {
+            background-color: #fef9ef;
+            border-radius: 5px;
+        }
+
+            .song-item button {
+                margin-right: 5px;
+            }
+
+        .text-danger {
+            margin-top: 0.5rem;
+        }
+    </style>
 }

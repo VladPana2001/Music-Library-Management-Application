@@ -1,0 +1,33 @@
+﻿/* Body background color */
+body {
+    background-color: rgb(254, 249, 239);
+}
+
+/* Navbar background color */
+.navbar {
+    background-color: rgb(34, 124, 157);
+}
+
+/* Navbar brand text shadow and font size */
+.navbar-brand {
+    text-shadow: -1px -1px 0 rgb(23,195,178), 1px -1px 0 rgb(255,203,119), -1px 1px 0 rgb(254,109,115), 1px 1px 0 rgb(254,109,115);
+    font-size: 30px;
+}
+
+/* Navbar item background colors */
+.nav-item.home {
+    background-color: rgb(23, 195, 178);
+}
+
+.nav-item.songs {
+    background-color: rgb(255, 203, 119);
+}
+
+.nav-item.playlists {
+    background-color: rgb(254, 109, 115);
+}
+
+.nav-item.mixes {
+    background-color: rgb(255, 126, 0);
+}
+

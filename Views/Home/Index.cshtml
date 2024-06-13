@@ -2,14 +2,61 @@
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <a asp-controller="MusicLibrary" asp-action="Index">
-        <div>Music Library</div>
-    </a>
-   
-    <a asp-controller="Mix" asp-action="Index">
-        <div>Mix Creator</div>
-    </a>
-
-    
+<div class="container mt-5">
+    <div class="text-center mb-4">
+        <h1>Welcome to BeatFusion</h1>
+        <p>Discover the power of managing your music library and creating amazing mixes with ease.</p>
+    </div>
+    <div class="row justify-content-center">
+        <div class="col-md-4 mb-4">
+            <a asp-controller="MusicLibrary" asp-action="Index" class="card text-decoration-none text-dark shadow-sm">
+                <div class="card-body text-center">
+                    <i class="fas fa-music fa-3x mb-3" style="color: #227c9d;"></i>
+                    <h5 class="card-title">Music Library</h5>
+                    <p class="card-text">Manage your music collection, organize playlists, and keep track of all your favorite tunes.</p>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-4 mb-4">
+            <a asp-controller="Mix" asp-action="Index" class="card text-decoration-none text-dark shadow-sm">
+                <div class="card-body text-center">
+                    <i class="fas fa-microphone-alt fa-3x mb-3" style="color: #17c3b2;"></i>
+                    <h5 class="card-title">Mix Creator</h5>
+                    <p class="card-text">Create stunning mixes, apply effects, trim, fade in/out, and adjust volumes to perfection.</p>
+                </div>
+            </a>
+        </div>
+    </div>
 </div>
+
+@section Styles {
+    <style>
+        .card {
+            border: none;
+            border-radius: 15px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+            .card:hover {
+                transform: scale(1.05);
+                box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            }
+
+        .card-body {
+            background-color: #ffcb77;
+            border-radius: 15px;
+        }
+
+        .card-title {
+            color: #fe6d73;
+        }
+
+        .card-text, .text-center p, .text-center h1, .nav-link {
+            color: black;
+        }
+
+        .text-center h1 {
+            color: black;
+        }
+    </style>
+}

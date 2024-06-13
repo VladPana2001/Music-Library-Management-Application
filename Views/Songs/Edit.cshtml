@@ -4,54 +4,101 @@
     ViewData["Title"] = "Edit Song";
 }
 
-<h2>Edit Song</h2>
+<div class="container mt-5">
+    <div class="text-center mb-4">
+        <h2>Edit Song</h2>
+        <p class="lead">Update the song details below and save your changes.</p>
+    </div>
 
-<h4>Song</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div class="form-group">
-                <label asp-for="SongTitle" class="control-label"></label>
-                <input asp-for="SongTitle" class="form-control" />
-                <span asp-validation-for="SongTitle" class="text-danger"></span>
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <form asp-action="Edit">
+                        <div class="form-group">
+                            <label asp-for="SongTitle" class="control-label"></label>
+                            <input asp-for="SongTitle" class="form-control" />
+                            <span asp-validation-for="SongTitle" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Description" class="control-label"></label>
+                            <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="SongArtist" class="control-label"></label>
+                            <input asp-for="SongArtist" class="form-control" />
+                            <span asp-validation-for="SongArtist" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="SongAlbum" class="control-label"></label>
+                            <input asp-for="SongAlbum" class="form-control" />
+                            <span asp-validation-for="SongAlbum" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="SongLenght" class="control-label"></label>
+                            <input asp-for="SongLenght" class="form-control" />
+                            <span asp-validation-for="SongLenght" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="SongBPM" class="control-label"></label>
+                            <input asp-for="SongBPM" class="form-control" />
+                            <span asp-validation-for="SongBPM" class="text-danger"></span>
+                        </div>
+                        <input type="hidden" asp-for="Id" />
+                        <div class="form-group text-center mt-2">
+                            <input type="submit" value="Save" class="btn btn-primary mr-2" />
+                            <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+                        </div>
+                    </form>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="Description" class="control-label"></label>
-                <input asp-for="Description" class="form-control" />
-                <span asp-validation-for="Description" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="SongArtist" class="control-label"></label>
-                <input asp-for="SongArtist" class="form-control" />
-                <span asp-validation-for="SongArtist" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="SongAlbum" class="control-label"></label>
-                <input asp-for="SongAlbum" class="form-control" />
-                <span asp-validation-for="SongAlbum" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="SongLenght" class="control-label"></label>
-                <input asp-for="SongLenght" class="form-control" />
-                <span asp-validation-for="SongLenght" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="SongBPM" class="control-label"></label>
-                <input asp-for="SongBPM" class="form-control" />
-                <span asp-validation-for="SongBPM" class="text-danger"></span>
-            </div>
-            <input type="hidden" asp-for="Id" />
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-                <a asp-action="Index" class="btn btn-secondary">Back to List</a>
-            </div>
-        </form>
+        </div>
     </div>
 </div>
 
-@section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+
+@section Styles {
+    <style>
+        .lead {
+            color: #333;
+            margin-top: 10px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background-color: #fff;
+            border: 1px solid #ccc;
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        .btn-primary {
+            background-color: #17c3b2;
+            border: none;
+            color: #fff;
+        }
+
+            .btn-primary:hover {
+                background-color: #149b8f;
+                color: #fff;
+            }
+
+        .btn-secondary {
+            background-color: #227c9d;
+            border: none;
+            color: #fff;
+        }
+
+            .btn-secondary:hover {
+                background-color: #1e6b85;
+                color: #fff;
+            }
+
+        .form-group label {
+            font-weight: bold;
+        }
+    </style>
 }

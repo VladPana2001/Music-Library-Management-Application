@@ -4,40 +4,113 @@
     ViewData["Title"] = "Enter Song Details";
 }
 
-<h2>Enter Song Details</h2>
+<div class="container mt-5">
+    <div class="text-center mb-4">
+        <a asp-controller="Songs" asp-action="UploadSongs" class="btn btn-secondary mb-4">
+            <i class="fas fa-arrow-left"></i> Back to Upload
+        </a>
+        <h2>Enter Song Details</h2>
+        <p class="lead">Fill in the details for each song to complete the upload process. Metadata and BPM will be gathered, but accuracy may vary depending on the file.</p>
+    </div>
 
-<form asp-action="EnterSongDetails" method="post">
-    @for (int i = 0; i < Model.Count; i++)
-    {
-        <div class="song-entry">
-            <h4>@Model[i].FileName</h4>
-            <div class="form-group">
-                <label asp-for="@Model[i].SongTitle">Song Title</label>
-                <input asp-for="@Model[i].SongTitle" class="form-control" />
+    <form asp-action="EnterSongDetails" method="post" id="songDetailsForm">
+        @for (int i = 0; i < Model.Count; i++)
+        {
+            <div class="card mb-4 shadow-sm">
+                <div class="card-body">
+                    <h4 class="card-title">@Model[i].FileName</h4>
+                    <div class="form-group">
+                        <label asp-for="@Model[i].SongTitle">Song Title</label>
+                        <input asp-for="@Model[i].SongTitle" class="form-control song-title" />
+                        <span class="text-danger title-error" style="display: none;">Song Title is required.</span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="@Model[i].Description">Description</label>
+                        <textarea asp-for="@Model[i].Description" class="form-control" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="@Model[i].SongArtist">Artist</label>
+                        <input asp-for="@Model[i].SongArtist" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="@Model[i].SongAlbum">Album</label>
+                        <input asp-for="@Model[i].SongAlbum" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="@Model[i].SongLenght">Length</label>
+                        <input asp-for="@Model[i].SongLenght" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="@Model[i].SongBPM">BPM</label>
+                        <input asp-for="@Model[i].SongBPM" class="form-control" />
+                    </div>
+                    <input type="hidden" asp-for="@Model[i].FileName" />
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="@Model[i].Description">Description</label>
-                <input asp-for="@Model[i].Description" class="form-control" />
-            </div>
-            <div class="form-group">
-                <label asp-for="@Model[i].SongArtist">Artist</label>
-                <input asp-for="@Model[i].SongArtist" class="form-control" />
-            </div>
-            <div class="form-group">
-                <label asp-for="@Model[i].SongAlbum">Album</label>
-                <input asp-for="@Model[i].SongAlbum" class="form-control" />
-            </div>
-            <div class="form-group">
-                <label asp-for="@Model[i].SongLenght">Length</label>
-                <input asp-for="@Model[i].SongLenght" class="form-control" />
-            </div>
-            <div class="form-group">
-                <label asp-for="@Model[i].SongBPM">BPM</label>
-                <input asp-for="@Model[i].SongBPM" class="form-control" />
-            </div>
-            <input type="hidden" asp-for="@Model[i].FileName" />
-            <hr />
-        </div>
-    }
-    <button type="submit" class="btn btn-primary">Save</button>
-</form>
+        }
+        <button type="submit" class="btn btn-primary">
+            <i class="fas fa-save"></i> Save
+        </button>
+    </form>
+</div>
+
+@section Styles {
+    <style>
+        .lead {
+            color: #333;
+            margin-top: 10px;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            color: #17c3b2;
+        }
+
+        .btn-secondary {
+            background-color: #227c9d;
+            border: none;
+            color: #fff;
+        }
+
+            .btn-secondary:hover {
+                background-color: #1e6b85;
+                color: #fff;
+            }
+
+        .btn-primary {
+            background-color: #17c3b2;
+            border: none;
+            color: #fff;
+        }
+
+            .btn-primary:hover {
+                background-color: #149b8f;
+                color: #fff;
+            }
+
+        .text-danger {
+            margin-top: 0.5rem;
+        }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        document.getElementById('songDetailsForm').addEventListener('submit', function (event) {
+            let isValid = true;
+            document.querySelectorAll('.song-title').forEach(function (input) {
+                const errorSpan = input.nextElementSibling;
+                if (!input.value.trim()) {
+                    errorSpan.style.display = 'block';
+                    isValid = false;
+                } else {
+                    errorSpan.style.display = 'none';
+                }
+            });
+
+            if (!isValid) {
+                event.preventDefault();
+            }
+        });
+    </script>
+}

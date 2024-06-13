@@ -1,0 +1,58 @@
+﻿@{
+    ViewData["Title"] = "Welcome";
+}
+
+<div class="container">
+    <div class="row mb-3">
+        <div class="col text-center">
+            <h1 class="display-4">Welcome To BeatFusion</h1>
+        </div>
+    </div>
+    <div class="row justify-content-evenly">
+        <div class="text-center col-md-5 mb-5">
+            Discover the power of BeatFusion. Manage your music library and create amazing mixes!
+        </div>
+    </div>
+    <div class="row justify-content-evenly">
+        <div class="col-md-3 rounded-pill bg-register hover-register justify-content-center align-content-center">
+            <a class="nav-link text-dark text-center" id="register" asp-area="Identity" asp-page="/Account/Register">
+                Get Started Now!
+            </a>
+        </div>
+        <div class="col-md-3 rounded-pill bg-login hover-login justify-content-center align-content-center">
+            <a class="nav-link text-dark text-center" id="login" asp-area="Identity" asp-page="/Account/Login">
+                Continue With Your Work!
+            </a>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .bg-register {
+            background-color: rgb(254, 109, 115);
+        }
+
+        .bg-login {
+            background-color: rgb(23, 195, 178);
+        }
+
+        .hover-register {
+            transition: background-color 0.5s, color 0.5s;
+        }
+
+            .hover-register:hover {
+                background-color: rgb(220, 90, 95);
+                color: white !important;
+            }
+
+        .hover-login {
+            transition: background-color 0.5s, color 0.5s;
+        }
+
+            .hover-login:hover {
+                background-color: rgb(20, 170, 155);
+                color: white !important;
+            }
+    </style>
+}
