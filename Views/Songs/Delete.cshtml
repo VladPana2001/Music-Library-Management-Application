@@ -4,53 +4,99 @@
     ViewData["Title"] = "Delete Song";
 }
 
-<h2>Delete Song</h2>
+<div class="container mt-5">
+    <div class="text-center mb-4">
+        <h2>Delete Song</h2>
+        <p class="lead">Are you sure you want to delete this song? This action cannot be undone.</p>
+    </div>
 
-<h3>Are you sure you want to delete this?</h3>
-<div>
-    <h4>Song</h4>
-    <hr />
-    <dl class="row">
-        <dt class="col-sm-2">
-            Song Title
-        </dt>
-        <dd class="col-sm-10">
-            @Model.SongTitle
-        </dd>
-        <dt class="col-sm-2">
-            Description
-        </dt>
-        <dd class="col-sm-10">
-            @Model.Description
-        </dd>
-        <dt class="col-sm-2">
-            Artist
-        </dt>
-        <dd class="col-sm-10">
-            @Model.SongArtist
-        </dd>
-        <dt class="col-sm-2">
-            Album
-        </dt>
-        <dd class="col-sm-10">
-            @Model.SongAlbum
-        </dd>
-        <dt class="col-sm-2">
-            Length
-        </dt>
-        <dd class="col-sm-10">
-            @Model.SongLenght
-        </dd>
-        <dt class="col-sm-2">
-            BPM
-        </dt>
-        <dd class="col-sm-10">
-            @Model.SongBPM
-        </dd>
-    </dl>
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h4 class="card-title text-danger">Song Details</h4>
+                    <hr />
+                    <dl class="row">
+                        <dt class="col-sm-3">Song Title</dt>
+                        <dd class="col-sm-9">@Model.SongTitle</dd>
 
-    <form asp-action="DeleteConfirmed" asp-route-id="@Model.Id" method="post">
-        <input type="submit" value="Delete" class="btn btn-danger" />
-        <a asp-action="Index" class="btn btn-secondary">Back to List</a>
-    </form>
+                        <dt class="col-sm-3">Description</dt>
+                        <dd class="col-sm-9">@Model.Description</dd>
+
+                        <dt class="col-sm-3">Artist</dt>
+                        <dd class="col-sm-9">@Model.SongArtist</dd>
+
+                        <dt class="col-sm-3">Album</dt>
+                        <dd class="col-sm-9">@Model.SongAlbum</dd>
+
+                        <dt class="col-sm-3">Length</dt>
+                        <dd class="col-sm-9">@Model.SongLenght</dd>
+
+                        <dt class="col-sm-3">BPM</dt>
+                        <dd class="col-sm-9">@Model.SongBPM</dd>
+                    </dl>
+
+                    <div class="text-center mt-4">
+                        <form asp-action="DeleteConfirmed" asp-route-id="@Model.Id" method="post" class="d-inline-block">
+                            <input type="submit" value="Delete" class="btn btn-danger mr-2" />
+                        </form>
+                        <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+@section Styles {
+    <style>
+        .lead {
+            color: #333;
+            margin-top: 10px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background-color: #fff;
+            border: 1px solid #ccc;
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        .btn-danger {
+            background-color: #fe6d73;
+            border: none;
+            color: #fff;
+        }
+
+            .btn-danger:hover {
+                background-color: #e65d63;
+                color: #fff;
+            }
+
+        .btn-secondary {
+            background-color: #227c9d;
+            border: none;
+            color: #fff;
+        }
+
+            .btn-secondary:hover {
+                background-color: #1e6b85;
+                color: #fff;
+            }
+
+        .card-title {
+            color: #fe6d73;
+        }
+
+        .form-group label {
+            font-weight: bold;
+        }
+
+        dl.row dt {
+            font-weight: bold;
+        }
+    </style>
+}

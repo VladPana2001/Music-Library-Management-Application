@@ -4,36 +4,53 @@
     ViewData["Title"] = "Your Mixes";
 }
 
-<h1>Your Mixes</h1>
+<div class="container mt-5">
+    <div class="text-center mb-4">
+        <h1 class="display-4">Your Mixes</h1>
+    </div>
 
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Title</th>
-            <th>Description</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var mix in Model)
-        {
-            <tr>
-                <td>@mix.Title</td>
-                <td>@mix.Description</td>
-                <td>
-                    <a asp-action="Details" asp-route-id="@mix.Id" class="btn btn-info">Details</a>
-                    <a asp-action="Download" asp-route-id="@mix.Id" class="btn btn-success">Download</a>
-                    <button class="btn btn-primary play-button" data-song-url="@Url.Action("Play", new { id = mix.Id })" data-song-title="@mix.Title">Play</button>
-                    <a asp-action="Delete" asp-route-id="@mix.Id" class="btn btn-danger">Delete</a>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+    <div class="text-left mb-3">
+        <a asp-controller="MusicLibrary" asp-action="Index" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Music Library
+        </a>
+        <a asp-action="Create" class="btn btn-primary ml-2">
+            <i class="fas fa-plus"></i> Create New Mix
+        </a>
+    </div>
 
-<a asp-action="Create" class="btn btn-primary">Create New Mix</a>
+    <div class="mix-container border p-3" style="max-height: 600px; overflow-y: auto;">
+        <div class="row">
+            @foreach (var mix in Model)
+            {
+                <div class="col-md-12 mb-4">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <h4 class="card-title text-primary">Title: @mix.Title</h4>
+                            <p class="card-text"><strong>Description:</strong> @mix.Description</p>
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <a asp-action="Details" asp-route-id="@mix.Id" class="btn btn-info mr-2">
+                                        <i class="fas fa-info-circle"></i> Details
+                                    </a>
+                                    <a asp-action="Download" asp-route-id="@mix.Id" class="btn btn-success mr-2">
+                                        <i class="fas fa-download"></i> Download
+                                    </a>
+                                    <button class="btn btn-primary play-button mr-2" data-song-url="@Url.Action("Play", new { id = mix.Id })" data-song-title="@mix.Title">
+                                        <i class="fas fa-play"></i> Play
+                                    </button>
+                                    <a asp-action="Delete" asp-route-id="@mix.Id" class="btn btn-danger">
+                                        <i class="fas fa-trash"></i> Delete
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
 
-<!-- Include Music Player Partial View -->
 @Html.Partial("_MusicPlayer")
 
 @section Scripts {
@@ -42,4 +59,89 @@
 
 @section Styles {
     <link rel="stylesheet" href="~/css/music-player.css">
+    <style>
+        .display-4 {
+            color: #17c3b2;
+        }
+
+        .btn-primary {
+            background-color: #17c3b2;
+            border: none;
+            color: #fff;
+        }
+
+            .btn-primary:hover {
+                background-color: #149b8f;
+                color: #fff;
+            }
+
+        .btn-secondary {
+            background-color: #227c9d;
+            border: none;
+            color: #fff;
+        }
+
+            .btn-secondary:hover {
+                background-color: #1e6b85;
+                color: #fff;
+            }
+
+        .btn-info {
+            background-color: #227c9d;
+            border: none;
+            color: #fff;
+        }
+
+            .btn-info:hover {
+                background-color: #1e6b85;
+                color: #fff;
+            }
+
+        .btn-success {
+            background-color: #23c96b;
+            border: none;
+            color: #fff;
+        }
+
+            .btn-success:hover {
+                background-color: #1e9e57;
+                color: #fff;
+            }
+
+        .btn-danger {
+            background-color: #fe6d73;
+            border: none;
+            color: #fff;
+        }
+
+            .btn-danger:hover {
+                background-color: #e65d63;
+                color: #fff;
+            }
+
+        .card-title {
+            color: #227c9d;
+        }
+
+        .mix-container {
+            max-height: 600px;
+            overflow-y: auto;
+            border: 1px solid #000;
+            padding: 15px;
+        }
+
+        .card {
+            background-color: #fff;
+            border: 1px solid #ccc;
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        .text-right {
+            display: flex;
+            justify-content: flex-end;
+        }
+    </style>
 }

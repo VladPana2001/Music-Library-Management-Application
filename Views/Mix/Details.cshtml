@@ -4,41 +4,110 @@
     ViewData["Title"] = "Mix Details";
 }
 
-<h1>Mix Details</h1>
+<div class="container mt-5">
+    <div class="text-center mb-4">
+        <h1 class="display-4">Mix Details</h1>
+    </div>
 
-<div>
-    <h2>@Model.Title</h2>
-    <p>@Model.Description</p>
-    <p><strong>Limiter Threshold:</strong> @Model.LimiterThreshold</p>
+    <div class="text-center mt-4 mb-3">
+        <a href="@Url.Action("Index", "Mix")" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to List
+        </a>
+    </div>
+
+    <div class="card shadow-sm mb-4 mx-auto" style="background-color: #ffffff; max-width: 800px;">
+        <div class="card-body">
+            <h4 class="card-title">Mix Information</h4>
+            <dl class="row">
+                <dt class="col-sm-3">Title:</dt>
+                <dd class="col-sm-9">@Model.Title</dd>
+
+                <dt class="col-sm-3">Description:</dt>
+                <dd class="col-sm-9">@Model.Description</dd>
+
+                <dt class="col-sm-3">Limiter Threshold:</dt>
+                <dd class="col-sm-9">@Model.LimiterThreshold</dd>
+            </dl>
+        </div>
+    </div>
+
+    <div class="card shadow-sm mx-auto" style="background-color: #ffffff; max-width: 1000px;">
+        <div class="card-body">
+            <h4 class="card-title">Songs in this Mix</h4>
+            <div class="songs-container" style="max-height: 600px; overflow-y: auto;">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Start Time (s)</th>
+                            <th>End Time (s)</th>
+                            <th>Start Position (s)</th>
+                            <th>Fade In Duration (s)</th>
+                            <th>Fade Out Duration (s)</th>
+                            <th>Volume</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var song in Model.Songs)
+                        {
+                            <tr>
+                                <td>@song.Title</td>
+                                <td>@song.StartTime</td>
+                                <td>@song.EndTime</td>
+                                <td>@song.StartPosition</td>
+                                <td>@song.FadeInDuration</td>
+                                <td>@song.FadeOutDuration</td>
+                                <td>@song.Volume</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
 
-<h3>Songs</h3>
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Title</th>
-            <th>Start Time (s)</th>
-            <th>End Time (s)</th>
-            <th>Start Position (s)</th>
-            <th>Fade In Duration (s)</th>
-            <th>Fade Out Duration (s)</th>
-            <th>Volume</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var song in Model.Songs)
-        {
-            <tr>
-                <td>@song.Title</td>
-                <td>@song.StartTime</td>
-                <td>@song.EndTime</td>
-                <td>@song.StartPosition</td>
-                <td>@song.FadeInDuration</td>
-                <td>@song.FadeOutDuration</td>
-                <td>@song.Volume</td>
-            </tr>
+@section Styles {
+    <style>
+        .display-4 {
+            color: #17c3b2;
         }
-    </tbody>
-</table>
 
-<a href="@Url.Action("Index", "Mix")" class="btn btn-primary">Back to List</a>
+        .card {
+            background-color: #fff;
+            border: 1px solid #ccc;
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        .btn-secondary {
+            background-color: #227c9d;
+            border: none;
+            color: #fff;
+        }
+
+            .btn-secondary:hover {
+                background-color: #1e6b85;
+                color: #fff;
+            }
+
+        .card-title {
+            color: #227c9d;
+        }
+
+        .table {
+            margin-bottom: 0;
+        }
+
+            .table th, .table td {
+                vertical-align: middle;
+            }
+
+        .songs-container {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+    </style>
+}
